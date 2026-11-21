@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>销售管理系统 · 电子合同演示</title>
+<title>销售管理系统 · 销售端</title>
 <style>
 :root{
   --bg:#f2f4f9; --card:#ffffff; --border:#e3e8f0; --text:#1c2536; --muted:#66728a;
@@ -11,7 +11,6 @@
   --green:#128a4c; --green-weak:#e4f6ec;
   --amber:#b45309; --amber-weak:#fdf1df;
   --red:#d92d20; --red-weak:#fdeceb;
-  --purple:#7c3aed; --purple-weak:#f3edff;
   --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
 }
 @media (prefers-color-scheme: dark){
@@ -21,7 +20,6 @@
   --green:#3fc37e; --green-weak:#12301f;
   --amber:#f0b45e; --amber-weak:#33230f;
   --red:#f4706a; --red-weak:#3a1b19;
-  --purple:#a78bfa; --purple-weak:#2a2140;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 1px 3px rgba(0,0,0,.3);
 }}
 :root[data-theme="dark"]{
@@ -30,7 +28,6 @@
   --green:#3fc37e; --green-weak:#12301f;
   --amber:#f0b45e; --amber-weak:#33230f;
   --red:#f4706a; --red-weak:#3a1b19;
-  --purple:#a78bfa; --purple-weak:#2a2140;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 1px 3px rgba(0,0,0,.3);
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -40,23 +37,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hira
 .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;padding:0 20px;height:60px;background:var(--card);border-bottom:1px solid var(--border)}
 .brand{font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;white-space:nowrap}
 .brand .tag{font-size:11px;font-weight:500;color:var(--primary);background:var(--primary-weak);padding:2px 8px;border-radius:99px}
-.seg{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:3px;margin:0 auto}
-.seg button{border:none;background:transparent;padding:7px 16px;border-radius:8px;font-size:13.5px;color:var(--muted);cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap}
-.seg button.active{background:var(--primary);color:#fff;font-weight:600;box-shadow:var(--shadow)}
-.identity{display:flex;align-items:center;flex-shrink:0}
-.identity select{width:120px;padding:7px 10px;font-size:13px}
-.id-fixed{font-size:12.5px;color:var(--muted);white-space:nowrap;border:1px dashed var(--border);border-radius:8px;padding:6px 12px}
-.user{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.user{margin-left:auto;display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);white-space:nowrap}
 .uavatar{width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
 
 /* ── 布局 ── */
 .layout{display:flex}
-.sidebar{width:220px;flex-shrink:0;border-right:1px solid var(--border);padding:10px 10px 14px;background:var(--card);display:flex;flex-direction:column}
-.nav-sec{font-size:11px;color:var(--muted);padding:14px 14px 6px;letter-spacing:.06em}
+.sidebar{width:200px;flex-shrink:0;border-right:1px solid var(--border);padding:14px 10px;background:var(--card);display:flex;flex-direction:column}
 .nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:11px 14px;border:none;background:none;border-radius:10px;font-size:14px;color:var(--muted);cursor:pointer;font-family:inherit;text-align:left;margin-bottom:4px;transition:.12s}
 .nav-item:hover{background:var(--bg);color:var(--text)}
 .nav-item.active{background:var(--primary-weak);color:var(--primary);font-weight:600}
-.nav-item .badge{margin-left:auto;font-size:11px;font-weight:600;background:var(--red);color:#fff;border-radius:99px;padding:1px 7px;min-width:20px;text-align:center}
 .side-foot{margin-top:auto;padding:12px 14px 4px;font-size:11.5px;color:var(--muted);line-height:1.6}
 main{flex:1;padding:24px;min-width:0}
 .container{max-width:1120px;margin:0 auto}
@@ -68,6 +57,7 @@ main{flex:1;padding:24px;min-width:0}
 .spacer{flex:1}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:20px;margin-bottom:18px}
 .card h3{font-size:15px;margin-bottom:14px}
+.card h3 .extra{float:right;font-size:12.5px;color:var(--muted);font-weight:400}
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 th{text-align:left;color:var(--muted);font-weight:500;font-size:12.5px;padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
@@ -75,13 +65,13 @@ td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:var(--bg)}
 tr.clickable{cursor:pointer}
+tr.totals-row td{background:var(--bg);font-weight:700;border-top:1px solid var(--border)}
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:var(--muted)}
 .badge{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;white-space:nowrap}
 .b-green{color:var(--green);background:var(--green-weak)}
 .b-amber{color:var(--amber);background:var(--amber-weak)}
 .b-red{color:var(--red);background:var(--red-weak)}
 .b-blue{color:var(--primary);background:var(--primary-weak)}
-.b-purple{color:var(--purple);background:var(--purple-weak)}
 .b-gray{color:var(--muted);background:var(--bg)}
 .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--card);color:var(--text);padding:8px 14px;border-radius:9px;font-size:13.5px;cursor:pointer;font-family:inherit;font-weight:500;transition:.12s;white-space:nowrap}
 .btn:hover{border-color:var(--primary);color:var(--primary)}
@@ -99,67 +89,30 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0
 label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
 .field{margin-bottom:16px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
+.hint{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.5}
 .auto-box{background:var(--bg);border:1px dashed var(--border);border-radius:9px;padding:10px 12px;font-size:14px;display:flex;justify-content:space-between;gap:10px;align-items:center}
 .auto-box b{color:var(--text)}
-.hint{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.5}
 .empty{text-align:center;color:var(--muted);padding:36px 0;font-size:13.5px;line-height:1.8}
-.boss-sel{width:190px;padding:6px 8px;font-size:12.5px}
+.crumb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-bottom:14px}
+.crumb a{color:var(--muted);text-decoration:none;cursor:pointer}
+.crumb a:hover{color:var(--primary)}
+.crumb .sep{opacity:.5}
+.crumb .cur{color:var(--text);font-weight:600}
 
-/* ── 单位详情 ── */
-.comp-head{display:flex;flex-wrap:wrap;gap:20px;align-items:center}
-.comp-head .avatar{width:52px;height:52px;border-radius:14px;background:var(--primary-weak);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;flex-shrink:0}
-.comp-head h2{font-size:19px}
-.stat{min-width:130px}
+/* ── 详情页头部 ── */
+.detail-head{display:flex;flex-wrap:wrap;gap:20px;align-items:center}
+.detail-head .avatar{width:52px;height:52px;border-radius:14px;background:var(--primary-weak);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;flex-shrink:0}
+.detail-head h2{font-size:19px}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px 20px;font-size:13.5px}
+.info-grid .k{color:var(--muted);font-size:12.5px}
+.info-grid .v{font-weight:600;margin-top:2px;word-break:break-all}
+.stat{min-width:110px}
 .stat .k{font-size:12px;color:var(--muted)}
-.stat .v{font-size:20px;font-weight:700;margin-top:2px}
-.contact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
-.contact-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
-.contact-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.contact-card .name{font-weight:600;font-size:14.5px}
-.contact-card .line{font-size:12.5px;color:var(--muted);margin-top:6px;display:flex;gap:6px;word-break:break-all}
+.stat .v{font-size:18px;font-weight:700;margin-top:2px}
 
-/* ── 审批进度条 ── */
-.steps{display:flex;align-items:flex-start;min-width:230px}
-.step{display:flex;flex-direction:column;align-items:center;flex:0 0 auto}
-.step .dot{width:18px;height:18px;border-radius:50%;background:var(--bg);border:2px solid var(--border);font-size:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700}
-.step .lb{font-size:11px;color:var(--muted);margin-top:4px;white-space:nowrap}
-.step.done .dot{background:var(--green);border-color:var(--green);color:#fff}
-.step.done .lb{color:var(--green)}
-.step.active .dot{background:var(--amber);border-color:var(--amber);color:#fff}
-.step.active .lb{color:var(--amber)}
-.step.reject .dot{background:var(--red);border-color:var(--red);color:#fff}
-.step.reject .lb{color:var(--red)}
-.step-line{height:2px;flex:1;min-width:28px;background:var(--border);margin-top:8px;border-radius:2px}
-.step-line.on{background:var(--green)}
-.step-line.reject{background:var(--red)}
-
-/* ── 审批页 tabs ── */
-.tabs{display:flex;gap:6px;margin-bottom:16px}
-.tab{padding:7px 16px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;font-size:13.5px;font-family:inherit;transition:.12s}
-.tab.active{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
-
-/* ── 统计信息 ── */
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:18px}
-.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:16px 18px}
-.kpi .k{font-size:12.5px;color:var(--muted)}
-.kpi .v{font-size:24px;font-weight:700;margin:6px 0 2px;font-variant-numeric:tabular-nums}
-.kpi .s{font-size:12px;color:var(--muted)}
-.rank-row{display:grid;grid-template-columns:130px 1fr 130px;align-items:center;gap:12px;padding:7px 0;cursor:default}
-.rank-name{font-size:13px;font-weight:600;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rank-track{background:var(--bg);border-radius:99px;height:14px;overflow:hidden}
-.rank-fill{height:100%;border-radius:0 4px 4px 0;transition:filter .12s}
-.rank-row:hover .rank-fill{filter:brightness(1.12)}
-.rank-val{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-.stack{display:flex;height:20px;border-radius:6px;overflow:hidden;gap:2px;margin-bottom:12px}
-.stack-seg{min-width:6px}
-.legend{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:12.5px;color:var(--muted)}
-.lg-dot{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:7px;vertical-align:-1px}
-.viz{--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#008300;--s7:#6250d6;--s8:#e34948;--st-good:#0ca30c;--st-warn:#fab219;--st-crit:#d03b3b}
-@media (prefers-color-scheme: dark){
-:root:not([data-theme="light"]) .viz{--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#0ca30c;--s7:#9085e9;--s8:#e66767}
-}
-:root[data-theme="dark"] .viz{--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#0ca30c;--s7:#9085e9;--s8:#e66767}
-#tip{position:fixed;z-index:300;background:#1c2536;color:#fff;padding:8px 12px;border-radius:8px;font-size:12px;line-height:1.7;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.35);max-width:250px}
+/* ── 认款进度 ── */
+.pay-track{height:8px;border-radius:99px;background:var(--bg);overflow:hidden;margin-top:8px}
+.pay-fill{height:100%;border-radius:99px;background:var(--green);transition:width .3s}
 
 /* ── 弹窗 ── */
 .mask{position:fixed;inset:0;background:rgba(10,15,25,.5);backdrop-filter:blur(3px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -167,52 +120,29 @@ label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
 .modal{background:var(--card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:540px;max-height:720px;overflow:auto;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
 .modal h3{font-size:17px;margin-bottom:18px}
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;font-size:13.5px}
-.info-grid .k{color:var(--muted);font-size:12.5px}
-.info-grid .v{font-weight:600;margin-top:2px;word-break:break-all}
-.timeline{display:flex;flex-direction:column}
-.t-item{display:flex;gap:14px;position:relative;padding-bottom:20px}
-.t-item:last-child{padding-bottom:0}
-.t-item::before{content:'';position:absolute;left:5px;top:16px;bottom:0;width:2px;background:var(--border)}
-.t-item:last-child::before{display:none}
-.t-dot{width:12px;height:12px;border-radius:50%;background:var(--primary);margin-top:4px;flex-shrink:0}
-.t-item .what{font-size:14px;font-weight:600}
-.t-item .when{font-size:12px;color:var(--muted);margin-top:2px}
 
 /* ── toast ── */
 #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:#1c2536;color:#fff;padding:11px 22px;border-radius:99px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.3);max-width:86vw}
 #toast.show{opacity:1;transform:translateX(-50%)}
 
 /* ── 响应式 ── */
-@media (max-width:1000px){
-  .brand .tag{display:none}
-}
 @media (max-width:880px){
   .topbar{flex-wrap:wrap;height:auto;padding:10px 14px;gap:10px}
-  .seg{margin:0;order:3;width:100%}
-  .seg button{flex:1}
   .layout{flex-direction:column}
   .sidebar{width:100%;border-right:none;border-bottom:1px solid var(--border);display:flex;flex-direction:row;overflow-x:auto;padding:8px}
   .nav-item{white-space:nowrap;width:auto;margin:0 4px 0 0}
-  .nav-sec,.side-foot{display:none}
+  .side-foot{display:none}
   main{padding:16px}
   .form-grid{grid-template-columns:1fr}
-  .page-head input,.page-head select{width:100% !important}
-  .rank-row{grid-template-columns:90px 1fr 100px}
+  .page-head input{width:100% !important}
 }
 </style>
 </head>
 <body>
 
 <header class="topbar">
-  <div class="brand">🧬 销售管理系统 <span class="tag">电子合同 · 演示</span></div>
-  <div class="seg">
-    <button data-role="sales" onclick="setRole('sales')">销售专员</button>
-    <button data-role="director" onclick="setRole('director')">销售总监</button>
-    <button data-role="boss" onclick="setRole('boss')">老板管理后台</button>
-  </div>
-  <div class="identity" id="identity"></div>
-  <div class="user" id="userChip"></div>
+  <div class="brand">🧬 销售管理系统 <span class="tag">销售端 · 演示</span></div>
+  <div class="user"><span class="uavatar">张</span><span><b>张三</b> · 销售专员</span></div>
 </header>
 
 <div class="layout">
@@ -221,98 +151,87 @@ label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
 </div>
 
 <div class="mask" id="mask" hidden onclick="if(event.target===this)closeModal()"></div>
-<div id="tip" hidden></div>
 <div id="toast"></div>
 
 <script>
 'use strict';
 /* ═══════════ 数据（纯演示：刷新后重置） ═══════════ */
+/* 产品目录（含单价：元/例） */
 const PRODUCTS = [
-  { id:'p1', name:'全基因组测序' },
-  { id:'p2', name:'肿瘤基因检测' },
-  { id:'p3', name:'无创产前检测' },
-  { id:'p4', name:'病原微生物检测' },
+  { id:'p1', name:'全基因组测序',   price:800  },
+  { id:'p2', name:'肿瘤基因检测',   price:600  },
+  { id:'p3', name:'无创产前检测',   price:1200 },
+  { id:'p4', name:'病原微生物检测', price:400  },
 ];
-const SEED_COMPANIES = [
-  { id:'c1', name:'华科生物科技有限公司', balance:128600, contacts:[
-      { id:'t1', name:'陈静', phone:'138****2210', email:'chenjing@huake.com', address:'北京市海淀区中关村大街 1 号' },
-      { id:'t2', name:'刘明', phone:'139****5678', email:'liuming@huake.com',  address:'北京市海淀区中关村大街 1 号' },
-    ], projects:[
-      { id:'pr1', name:'万人基因组计划',    product:'全基因组测序',   amount:480000, status:'进行中', date:'2026-08-12' },
-      { id:'pr2', name:'肺癌早筛队列研究',  product:'肿瘤基因检测',   amount:215000, status:'已完成', date:'2026-03-05' },
-    ]},
-  { id:'c2', name:'蓝海医疗集团', balance:45200, contacts:[
-      { id:'t3', name:'王丽', phone:'136****3345', email:'wangli@lanhai.com',     address:'上海市浦东新区张江路 88 号' },
-      { id:'t4', name:'赵强', phone:'135****7890', email:'zhaoqiang@lanhai.com',  address:'上海市浦东新区张江路 88 号' },
-    ], projects:[
-      { id:'pr3', name:'孕妇队列研究', product:'无创产前检测', amount:98000, status:'进行中', date:'2026-09-01' },
-    ]},
-  { id:'c3', name:'星辰基因科技', balance:86900, contacts:[
-      { id:'t5', name:'孙悦', phone:'137****1122', email:'sunyue@xingchen.com', address:'深圳市南山区科技园南区 12 栋' },
-    ], projects:[
-      { id:'pr4', name:'病原溯源项目', product:'病原微生物检测', amount:156000, status:'已完成', date:'2026-06-18' },
-    ]},
-  { id:'c4', name:'康泰制药股份', balance:12300, contacts:[
-      { id:'t6', name:'周涛', phone:'134****9988', email:'zhoutao@kangtai.com', address:'杭州市滨江区江南大道 200 号' },
-    ], projects:[
-      { id:'pr5', name:'药物基因组学研究', product:'全基因组测序', amount:320000, status:'进行中', date:'2026-10-20' },
-    ]},
+/* 客户：单位降级为字段 */
+const SEED_CUSTOMERS = [
+  { id:'cu1', name:'陈静', phone:'138****2210', email:'chenjing@huake.com', org:'华科生物科技有限公司',
+    address:'北京市海淀区中关村大街 1 号', invoice:'增值税专用发票 · 华科生物科技有限公司 · 税号 91110108MA01XXXXX' },
+  { id:'cu2', name:'王丽', phone:'136****3345', email:'wangli@lanhai.com', org:'蓝海医疗集团',
+    address:'上海市浦东新区张江路 88 号', invoice:'增值税普通发票 · 蓝海医疗集团 · 税号 91310115MA1KXXXXXX' },
+  { id:'cu3', name:'孙悦', phone:'137****1122', email:'sunyue@xingchen.com', org:'星辰基因科技',
+    address:'深圳市南山区科技园南区 12 栋', invoice:'增值税专用发票 · 星辰基因科技 · 税号 91440300MA5FXXXXXX' },
+  { id:'cu4', name:'周涛', phone:'134****9988', email:'zhoutao@kangtai.com', org:'康泰制药股份',
+    address:'杭州市滨江区江南大道 200 号', invoice:'增值税专用发票 · 康泰制药股份 · 税号 91330100MA2JXXXXXX' },
 ];
-/* 员工：level 1=销售专员 2=销售总监 3=老板；bossId=一级人员的审批上级 */
-const SEED_STAFF = [
-  { id:'u0', name:'王总',   level:3, bossId:null, createdAt:'2020-01-01', slot:0 },
-  { id:'u2', name:'李国强', level:2, bossId:null, createdAt:'2024-06-01', slot:2 },
-  { id:'u1', name:'张三',   level:1, bossId:'u2', createdAt:'2025-03-12', slot:1 },
-  { id:'u3', name:'王芳',   level:1, bossId:'u2', createdAt:'2025-08-20', slot:3 },
-  { id:'u4', name:'陈晨',   level:1, bossId:'',   createdAt:'2026-09-15', slot:4 },
-];
+/* 大合同：客户之下，无限多个 */
 const SEED_CONTRACTS = [
-  { id:'k1', no:'HT20261101-001', name:'华科万人基因组二期合同', product:'全基因组测序',   companyId:'c1', companyName:'华科生物科技有限公司', contactName:'陈静', samples:800,  amount:480000, salesId:'u1', sales:'张三',   date:'2026-11-01', status:'已通过', approveDate:'2026-11-02', approver:'李国强', reason:'' },
-  { id:'k2', no:'HT20261110-002', name:'蓝海产前检测服务合同', product:'无创产前检测',   companyId:'c2', companyName:'蓝海医疗集团',         contactName:'王丽', samples:500,  amount:98000,  salesId:'u3', sales:'王芳',   date:'2026-11-10', status:'待审批', approveDate:'',           approver:'',      reason:'' },
-  { id:'k3', no:'HT20261112-003', name:'星辰病原检测年度合同', product:'病原微生物检测', companyId:'c3', companyName:'星辰基因科技',         contactName:'孙悦', samples:1200, amount:156000, salesId:'u1', sales:'张三',   date:'2026-11-12', status:'待审批', approveDate:'',           approver:'',      reason:'' },
-  { id:'k4', no:'HT20261115-004', name:'康泰药物基因组合同',   product:'全基因组测序',   companyId:'c4', companyName:'康泰制药股份',         contactName:'周涛', samples:300,  amount:320000, salesId:'u3', sales:'王芳',   date:'2026-11-15', status:'已驳回', approveDate:'2026-11-16', approver:'李国强', reason:'样本数量与报价不符，请核实后重新提交' },
-  { id:'k5', no:'HT20261116-005', name:'星辰病原复检年度合同', product:'病原微生物检测', companyId:'c3', companyName:'星辰基因科技',         contactName:'孙悦', samples:600,  amount:188000, salesId:'u2', sales:'李国强', date:'2026-11-16', status:'待审批', approveDate:'',           approver:'',      reason:'' },
-  { id:'k6', no:'HT20261117-001', name:'康泰产前筛查合作合同', product:'无创产前检测',   companyId:'c4', companyName:'康泰制药股份',         contactName:'周涛', samples:400,  amount:88000,  salesId:'u4', sales:'陈晨',   date:'2026-11-17', status:'待审批', approveDate:'',           approver:'',      reason:'' },
+  { id:'ct1', customerId:'cu1', name:'华科万人基因组二期合同', offlineNo:'HT-2026-0001', amount:480000, startDate:'2026-11-01', termYears:3 },
+  { id:'ct2', customerId:'cu2', name:'蓝海产前检测服务合同', offlineNo:'HT-2026-0008', amount:98000,  startDate:'2026-09-15', termYears:3 },
+  { id:'ct3', customerId:'cu3', name:'星辰病原检测年度合同', offlineNo:'HT-2026-0015', amount:320000, startDate:'2026-10-08', termYears:3 },
+  { id:'ct4', customerId:'cu1', name:'华科肿瘤早筛二期合同', offlineNo:'HT-2026-0021', amount:215000, startDate:'2026-11-18', termYears:3 },
+  { id:'ct5', customerId:'cu4', name:'康泰药物基因组合同',   offlineNo:'HT-2026-0030', amount:152000, startDate:'2026-11-20', termYears:3 },
 ];
-const SEED_APPROVALS = [
-  { time:'2026-11-16 10:05', no:'HT20261115-004', name:'康泰药物基因组合同',     submitter:'王芳', approver:'李国强', result:'已驳回', reason:'样本数量与报价不符，请核实后重新提交' },
-  { time:'2026-11-02 14:20', no:'HT20261101-001', name:'华科万人基因组二期合同', submitter:'张三', approver:'李国强', result:'已通过', reason:'' },
+/* 分析批次：合同之下，无限多个；items 逐条累计 */
+const SEED_BATCHES = [
+  { id:'b1', contractId:'ct1', name:'万人基因组第一批', no:'PC20261112-001', createdAt:'2026-11-12 10:23', status:'分析中',
+    items:[ { product:'全基因组测序', samples:500, discount:10 },
+            { product:'肿瘤基因检测', samples:200, discount:0 } ],
+    payments:[ { time:'2026-11-13 09:15', amount:200000, note:'首付款' } ] },
+  { id:'b2', contractId:'ct2', name:'孕妇队列第一批', no:'PC20261115-001', createdAt:'2026-11-15 14:02', status:'待分析',
+    items:[ { product:'无创产前检测', samples:300, discount:15 } ],
+    payments:[] },
+  { id:'b3', contractId:'ct3', name:'病原溯源批次', no:'PC20261116-001', createdAt:'2026-11-16 09:40', status:'已完成',
+    items:[ { product:'病原微生物检测', samples:1000, discount:20 } ],
+    payments:[ { time:'2026-11-16 16:30', amount:320000, note:'全款' } ] },
+  { id:'b4', contractId:'ct5', name:'药物基因组批次', no:'PC20261120-001', createdAt:'2026-11-20 16:12', status:'分析中',
+    items:[ { product:'全基因组测序', samples:200, discount:5 } ],
+    payments:[ { time:'2026-11-20 17:00', amount:80000, note:'首付款' } ] },
 ];
 
 /* ═══════════ 状态 ═══════════ */
-let role = 'sales';                 // sales | director | boss
-let view = 'customers';             // customers | company | newContract | records | approval | staff | projects | approvalLog | stats
-let param = null;                   // 单位详情参数
-let tab  = 'pending';               // 审批页: pending | done
-let q = '', recQ = '', recF = '全部', logQ = '';
-let staff = JSON.parse(JSON.stringify(SEED_STAFF));
-let companies = JSON.parse(JSON.stringify(SEED_COMPANIES));
+let customers = JSON.parse(JSON.stringify(SEED_CUSTOMERS));
 let contracts = JSON.parse(JSON.stringify(SEED_CONTRACTS));
-let approvals = JSON.parse(JSON.stringify(SEED_APPROVALS));
-let currentIds = { sales:'u1', director:'u2', boss:'u0' };
-let tipData = {};
+let batches   = JSON.parse(JSON.stringify(SEED_BATCHES));
+let view = 'customers';   // customers | customer | contract | batch | batches
+let param = null;
+let q = '', bq = '';
 
 /* ═══════════ 工具函数 ═══════════ */
 const $ = id => document.getElementById(id);
-const levelOf = r => r==='sales' ? 1 : r==='director' ? 2 : 3;
-const cur = () => { const id = currentIds[role]; const L = levelOf(role); return staff.find(s => s.id===id && s.level===L) || null; };
-const levelName = l => l===3 ? '老板' : (l===2 ? '销售总监' : '销售专员');
 const todayStr = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
 const nowStr = () => { const d = new Date(); return todayStr() + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); };
 const money = n => '¥' + Number(n).toLocaleString('zh-CN');
 const esc = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-function nextNo(){
+const prodPrice = name => { const p = PRODUCTS.find(x => x.name === name); return p ? p.price : 0; };
+const itemOriginal = it => prodPrice(it.product) * it.samples;
+const itemCurrent  = it => Math.round(itemOriginal(it) * (1 - it.discount / 100));
+function batchTotals(b){
+  const samples  = b.items.reduce((a,i) => a + i.samples, 0);
+  const original = b.items.reduce((a,i) => a + itemOriginal(i), 0);
+  const total    = b.items.reduce((a,i) => a + itemCurrent(i), 0);
+  const paid     = (b.payments || []).reduce((a,p) => a + p.amount, 0);
+  return { samples, original, total, paid };
+}
+function nextBatchNo(){
   const d = new Date();
-  const p = 'HT' + d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
-  const n = contracts.filter(c => c.no.startsWith(p + '-')).length + 1;
+  const p = 'PC' + d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+  const n = batches.filter(x => x.no.startsWith(p + '-')).length + 1;
   return p + '-' + String(n).padStart(3,'0');
 }
 function statusBadge(s){
-  const m = { '进行中':'b-blue','已完成':'b-green','已终止':'b-gray','待审批':'b-amber','已通过':'b-green','已驳回':'b-red' };
+  const m = { '待分析':'b-amber', '分析中':'b-blue', '已完成':'b-green' };
   return '<span class="badge ' + (m[s]||'b-gray') + '">' + s + '</span>';
-}
-function levelBadge(l){
-  return l===3 ? '<span class="badge b-amber">老板</span>' : l===2 ? '<span class="badge b-purple">销售总监</span>' : '<span class="badge b-blue">销售专员</span>';
 }
 function emptyRow(cols,msg){ return '<tr><td colspan="' + cols + '"><div class="empty">' + msg + '</div></td></tr>'; }
 function toast(msg){
@@ -322,663 +241,383 @@ function toast(msg){
 function showModal(html){ $('mask').innerHTML = html; $('mask').hidden = false; }
 function closeModal(){ $('mask').hidden = true; $('mask').innerHTML = ''; }
 
-/* ═══════════ 权限与审批流 ═══════════ */
-function sanitize(){
-  for (const r of ['sales','director']){
-    const L = levelOf(r);
-    if (!staff.some(s => s.id===currentIds[r] && s.level===L)){
-      const f = staff.find(s => s.level===L);
-      currentIds[r] = f ? f.id : null;
-    }
-  }
-  currentIds.boss = 'u0';
-}
-/* 合同当前应流转给谁审批 */
-function routedApproverName(c){
-  const s = staff.find(x => x.id===c.salesId);
-  if (!s) return '老板';
-  if (s.level===3) return s.name;            // 老板提交 → 老板自己审批
-  if (s.level===2) return '老板';             // 总监提交 → 上级（老板）审批
-  const b = staff.find(x => x.id===s.bossId); // 专员提交 → 其直属总监审批
-  return b ? b.name : '老板（未分配上级）';
-}
-function canApprove(c){
-  const me = cur(); if (!me) return false;
-  if (me.level===3) return true;              // 老板可审批全部待审批
-  if (me.level===2){                          // 总监只审批直属专员提交的
-    const s = staff.find(x => x.id===c.salesId);
-    return !!s && s.level===1 && s.bossId===me.id;
-  }
-  return false;
-}
-function myQueue(){ return contracts.filter(c => c.status==='待审批' && canApprove(c)); }
-function visibleTo(me, c){
-  if (me.level===3) return true;              // 老板看全部
-  const s = staff.find(x => x.id===c.salesId);
-  if (!s) return false;
-  if (me.level===1) return s.id===me.id;      // 专员看自己
-  return s.id===me.id || s.bossId===me.id;    // 总监看自己 + 下属
-}
+/* 关联查询 */
+const custOf = c => customers.find(x => x.id === c.customerId) || null;
+const contractsOf = cu => contracts.filter(c => c.customerId === cu.id);
+const batchesOfContract = ct => batches.filter(b => b.contractId === ct.id);
+const contractOfBatch = b => contracts.find(x => x.id === b.contractId) || null;
 
-/* ═══════════ 岗位切换 / 整体渲染 ═══════════ */
-function setRole(r){
-  role = r; sanitize();
-  if (view === 'approval' && r === 'sales') view = 'customers';
-  if (['staff','projects','approvalLog','stats'].includes(view) && r !== 'boss') view = 'customers';
-  render();
-}
-function switchUser(id){ currentIds[role] = id; render(); }
-function navBtn(k, ico, lb, extra){
-  const active = (view === k) || (view === 'company' && k === 'customers');
-  return '<button class="nav-item ' + (active?'active':'') + '" onclick="nav(\'' + k + '\')">' + ico + ' ' + lb + (extra||'') + '</button>';
+/* ═══════════ 渲染 ═══════════ */
+function navBtn(k, ico, lb){
+  const active = (view === k) || ((view === 'customer' || view === 'contract' || view === 'batch') && k === 'customers');
+  return '<button class="nav-item ' + (active?'active':'') + '" onclick="nav(\'' + k + '\')">' + ico + ' ' + lb + '</button>';
 }
 function nav(k){ view = k; param = null; render(); }
-function render(){ renderTopbar(); renderSidebar(); renderView(); window.scrollTo(0,0); }
-function renderTopbar(){
-  document.querySelectorAll('.seg button').forEach(b => b.classList.toggle('active', b.dataset.role === role));
-  const me = cur();
-  $('userChip').innerHTML = me
-    ? '<span class="uavatar">' + esc(me.name[0]) + '</span><span><b>' + esc(me.name) + '</b> · ' + levelName(me.level) + '</span>'
-    : '<span class="hint">暂无该岗位账号</span>';
-  if (role === 'boss'){
-    $('identity').innerHTML = '<span class="id-fixed">👑 老板账号</span>';
-    return;
-  }
-  const L = levelOf(role);
-  const list = staff.filter(s => s.level===L);
-  if (!list.length){ $('identity').innerHTML = '<span class="hint">暂无该岗位账号</span>'; return; }
-  $('identity').innerHTML = '<select onchange="switchUser(this.value)">' +
-    list.map(s => '<option value="' + s.id + '"' + (s.id===currentIds[role]?' selected':'') + '>' + esc(s.name) + '</option>').join('') + '</select>';
-}
+function render(){ renderSidebar(); renderView(); window.scrollTo(0,0); }
 function renderSidebar(){
-  let html = '<div class="nav-sec">业务</div>' +
-    navBtn('customers','📇','客户管理') + navBtn('newContract','📝','新建电子合同') + navBtn('records','🗂️','合同记录');
-  if (role !== 'sales'){
-    const n = cur() ? myQueue().length : 0;
-    html += navBtn('approval','✅','合同审批', n ? '<span class="badge">' + n + '</span>' : '');
-  }
-  if (role === 'boss'){
-    html += '<div class="nav-sec">管理后台</div>' +
-      navBtn('staff','👥','员工管理') +
-      navBtn('projects','🏢','项目及单位管理') +
-      navBtn('approvalLog','🧾','商单审批记录') +
-      navBtn('stats','📊','统计信息');
-  }
-  html += '<div class="side-foot">纯演示页面<br>数据刷新后重置</div>';
-  $('sidebar').innerHTML = html;
+  $('sidebar').innerHTML = navBtn('customers','👥','客户管理') + navBtn('batches','🧪','批次管理') +
+    '<div class="side-foot">纯演示页面<br>数据刷新后重置</div>';
 }
 function renderView(){
-  const me = cur();
-  if (!me){
-    $('main').innerHTML = '<div class="container"><div class="card"><div class="empty">当前「' +
-      (role==='sales'?'销售专员':'销售总监') + '」岗位下暂无人员账号。<br>请切换到「老板管理后台」→「员工管理」创建该岗位的员工。</div></div></div>';
-    return;
-  }
-  if (view === 'company')        viewCompany(param);
-  else if (view === 'newContract') viewNewContract();
-  else if (view === 'records')   viewRecords();
-  else if (view === 'approval')  viewApproval();
-  else if (view === 'staff')     viewStaff();
-  else if (view === 'projects')  viewProjects();
-  else if (view === 'approvalLog') viewApprovalLog();
-  else if (view === 'stats')     viewStats();
+  if (view === 'customer') viewCustomer(param);
+  else if (view === 'contract') viewContract(param);
+  else if (view === 'batch') viewBatch(param);
+  else if (view === 'batches') viewBatches();
   else viewCustomers();
 }
+function crumbHtml(parts){
+  return '<div class="crumb">' + parts.map((p,i) =>
+    (i === parts.length-1)
+      ? '<span class="cur">' + p[1] + '</span>'
+      : '<a onclick="' + p[2] + '">' + esc(p[1]) + '</a>'
+  ).join('<span class="sep">›</span>') + '</div>';
+}
 
-/* ═══════════ ① 客户管理（查询） ═══════════ */
+/* ═══════════ ① 客户管理（列表） ═══════════ */
 function onCustSearch(){ q = $('q').value; viewCustomers(); const el = $('q'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+function custStats(cu){
+  const cts = contractsOf(cu);
+  const bs = batches.filter(b => cts.some(c => c.id === b.contractId));
+  const running = bs.filter(b => b.status === '分析中').length;
+  const paid = bs.reduce((a,b) => a + batchTotals(b).paid, 0);
+  const ctotal = cts.reduce((a,c) => a + c.amount, 0);
+  return { n: cts.length, running, paid, ctotal };
+}
 function viewCustomers(){
   const kw = q.trim();
-  const list = companies.filter(c => c.name.includes(kw) || c.contacts.some(t => t.name.includes(kw)));
+  const list = customers.filter(c => c.name.includes(kw) || c.org.includes(kw) || c.phone.includes(kw));
   $('main').innerHTML = '<div class="container">' +
-    '<div class="page-head"><div><h2>客户管理</h2><div class="sub">查询客户单位，点击进入单位可维护联系人</div></div><div class="spacer"></div>' +
-    '<input type="search" id="q" placeholder="搜索单位 / 联系人名称" style="width:250px" value="' + esc(q) + '" oninput="onCustSearch()">' +
-    '<button class="btn btn-primary" onclick="modalNewCompany()">＋ 新建单位</button></div>' +
+    '<div class="page-head"><div><h2>客户管理</h2><div class="sub">客户为最上层归属，单位是客户下的一个信息字段</div></div><div class="spacer"></div>' +
+    '<input type="search" id="q" placeholder="搜索客户 / 单位 / 电话" style="width:250px" value="' + esc(q) + '" oninput="onCustSearch()">' +
+    '<button class="btn btn-primary" onclick="modalNewCustomer()">＋ 创建客户</button></div>' +
     '<div class="card"><div class="table-wrap"><table>' +
-    '<thead><tr><th>单位名称</th><th>联系人</th><th>单位余额</th><th>历史项目</th><th>最近项目状态</th><th>操作</th></tr></thead><tbody>' +
+    '<thead><tr><th>客户</th><th>单位</th><th>签订合同数</th><th>运行分析任务</th><th>认款总额度</th><th>合同总额度</th><th>操作</th></tr></thead><tbody>' +
     (list.map(c => {
-      const last = c.projects.length ? c.projects.slice().sort((a,b) => b.date.localeCompare(a.date))[0] : null;
-      return '<tr class="clickable" onclick="openCompany(\'' + c.id + '\')">' +
-        '<td><b>' + esc(c.name) + '</b></td>' +
-        '<td>' + c.contacts.length + ' 人</td>' +
-        '<td><b style="color:var(--primary)">' + money(c.balance) + '</b></td>' +
-        '<td>' + c.projects.length + ' 个</td>' +
-        '<td>' + (last ? statusBadge(last.status) : '<span class="hint">—</span>') + '</td>' +
-        '<td><button class="btn btn-sm" onclick="event.stopPropagation();openCompany(\'' + c.id + '\')">查看</button></td></tr>';
-    }).join('') || emptyRow(6,'没有找到匹配的单位，试试其他关键词')) +
+      const st = custStats(c);
+      return '<tr class="clickable" onclick="openCustomer(\'' + c.id + '\')">' +
+        '<td><b>' + esc(c.name) + '</b><div class="hint">' + esc(c.phone) + '</div></td>' +
+        '<td>' + esc(c.org) + '</td>' +
+        '<td>' + st.n + ' 份</td>' +
+        '<td>' + st.running + ' 个</td>' +
+        '<td><b style="color:var(--green)">' + money(st.paid) + '</b></td>' +
+        '<td><b>' + money(st.ctotal) + '</b></td>' +
+        '<td><button class="btn btn-sm" onclick="event.stopPropagation();openCustomer(\'' + c.id + '\')">查看</button></td></tr>';
+    }).join('') || emptyRow(7,'没有找到匹配的客户，试试其他关键词')) +
     '</tbody></table></div></div></div>';
 }
-function openCompany(id){ view = 'company'; param = id; render(); }
+function openCustomer(id){ view = 'customer'; param = id; render(); }
 
-/* ═══════════ ① 单位详情：余额 / 联系人 / 历史项目 ═══════════ */
-function viewCompany(id){
-  const c = companies.find(x => x.id === id);
+/* ═══════════ ② 客户详情：客户信息 + 名下大合同 ═══════════ */
+function viewCustomer(id){
+  const c = customers.find(x => x.id === id);
   if (!c){ view = 'customers'; return render(); }
+  const cts = contractsOf(c);
+  const st = custStats(c);
   $('main').innerHTML = '<div class="container">' +
-    '<button class="btn btn-ghost" onclick="view=\'customers\';render()">← 返回客户列表</button>' +
-    '<div class="card comp-head" style="margin-top:14px">' +
+    crumbHtml([['客户管理','客户管理','nav(\'customers\')'],['客户',c.name,'']]) +
+    '<div class="card"><div class="detail-head">' +
       '<div class="avatar">' + esc(c.name[0]) + '</div>' +
-      '<div style="flex:1;min-width:220px"><h2>' + esc(c.name) + '</h2>' +
-      '<div class="hint">客户编号 ' + c.id.toUpperCase() + ' · 联系人 ' + c.contacts.length + ' 人 · 历史项目 ' + c.projects.length + ' 个</div></div>' +
-      '<div class="stat"><div class="k">单位余额</div><div class="v" style="color:var(--primary)">' + money(c.balance) + '</div></div>' +
-      '<button class="btn btn-primary" onclick="modalNewContact(\'' + c.id + '\')">＋ 新建联系人</button>' +
-    '</div>' +
-    '<div class="card"><h3>联系人（' + c.contacts.length + '）</h3>' +
-      (c.contacts.length
-        ? '<div class="contact-grid">' + c.contacts.map(t =>
-            '<div class="contact-card"><div class="top"><span class="name">' + esc(t.name) + '</span>' +
-            '<button class="btn btn-ghost btn-sm" onclick="delContact(\'' + c.id + '\',\'' + t.id + '\')">删除</button></div>' +
-            '<div class="line">📞 ' + esc(t.phone) + '</div>' +
-            '<div class="line">✉️ ' + esc(t.email) + '</div>' +
-            '<div class="line">📦 ' + esc(t.address) + '</div></div>').join('') + '</div>'
-        : '<div class="empty">暂无联系人，点击右上角「新建联系人」添加，将自动绑定到「' + esc(c.name) + '」</div>') +
-    '</div>' +
-    '<div class="card"><h3>历史项目（' + c.projects.length + '）</h3>' +
-      (c.projects.length
-        ? '<div class="table-wrap"><table><thead><tr><th>项目名称</th><th>产品</th><th>金额</th><th>当前状态</th><th>开始日期</th></tr></thead><tbody>' +
-          c.projects.map(p => '<tr><td><b>' + esc(p.name) + '</b></td><td>' + esc(p.product) + '</td><td>' + money(p.amount) + '</td><td>' + statusBadge(p.status) + '</td><td>' + p.date + '</td></tr>').join('') +
-          '</tbody></table></div>'
-        : '<div class="empty">暂无历史项目</div>') +
-    '</div></div>';
-}
-function delContact(cid, tid){
-  const c = companies.find(x => x.id === cid);
-  const t = c.contacts.find(x => x.id === tid);
-  if (!confirm('确认删除联系人「' + t.name + '」？')) return;
-  c.contacts = c.contacts.filter(x => x.id !== tid);
-  toast('已删除联系人「' + t.name + '」');
-  render();
-}
-
-/* ═══════════ ② 新建电子合同 ═══════════ */
-function viewNewContract(){
-  const t = todayStr(), no = nextNo(), me = cur();
-  $('main').innerHTML = '<div class="container" style="max-width:860px">' +
-    '<div class="page-head"><div><h2>新建电子合同</h2><div class="sub">填写合同信息，单号 / 日期 / 销售将自动生成；提交后进入「待审批」，由审批上级处理</div></div></div>' +
-    '<form class="card" onsubmit="return submitContract(event)">' +
-      '<div class="form-grid">' +
-        '<div class="field"><label>合同名称 *</label><input id="f-name" required placeholder="例如：华科生物全基因组测序二期合同"></div>' +
-        '<div class="field"><label>项目产品 *</label><select id="f-product" required><option value="">请选择产品</option>' +
-          PRODUCTS.map(p => '<option value="' + esc(p.name) + '">' + p.name + '</option>').join('') + '</select></div>' +
-        '<div class="field"><label>客户单位 *</label><select id="f-company" required onchange="onCompanyChange()"><option value="">请选择客户单位</option>' +
-          companies.map(c => '<option value="' + c.id + '">' + esc(c.name) + '</option>').join('') + '</select></div>' +
-        '<div class="field"><label>联系人 *</label><select id="f-contact" required disabled><option value="">请先选择客户单位</option></select><div class="hint" id="f-contact-hint"></div></div>' +
-        '<div class="field"><label>样本数量 *</label><input id="f-samples" type="number" min="1" step="1" required placeholder="例：500"></div>' +
-        '<div class="field"><label>合同金额（元）*</label><input id="f-amount" type="number" min="0.01" step="0.01" required placeholder="例：98000"></div>' +
-      '</div>' +
-      '<h3 style="margin:8px 0 12px">自动生成信息</h3>' +
-      '<div class="form-grid">' +
-        '<div class="field"><label>单号（自动生成）</label><div class="auto-box"><b>' + no + '</b><span>🔒 提交时生成</span></div></div>' +
-        '<div class="field"><label>日期（自动生成）</label><div class="auto-box"><b>' + t + '</b><span>🔒</span></div></div>' +
-        '<div class="field"><label>销售（自动生成）</label><div class="auto-box"><b>' + esc(me.name) + ' · ' + levelName(me.level) + '</b><span>🔒</span></div></div>' +
-      '</div>' +
-      '<div class="modal-actions"><button type="button" class="btn" onclick="view=\'records\';render()">取消</button><button type="submit" class="btn btn-primary">提交审批</button></div>' +
-    '</form></div>';
-}
-function onCompanyChange(){
-  const sel = $('f-contact'), hint = $('f-contact-hint'), cid = $('f-company').value;
-  if (!cid){ sel.disabled = true; sel.innerHTML = '<option value="">请先选择客户单位</option>'; hint.textContent = ''; return; }
-  const c = companies.find(x => x.id === cid);
-  if (c.contacts.length === 0){
-    sel.disabled = true; sel.innerHTML = '<option value="">该单位暂无联系人</option>';
-    hint.textContent = '⚠️ 该单位暂无联系人，请先到「客户管理」中为该单位添加联系人';
-    return;
-  }
-  sel.disabled = false;
-  sel.innerHTML = '<option value="">请选择联系人</option>' + c.contacts.map(t => '<option value="' + esc(t.name) + '">' + esc(t.name) + ' · ' + esc(t.phone) + '</option>').join('');
-  hint.textContent = '联系人将自动关联「' + esc(c.name) + '」';
-}
-function submitContract(e){
-  e.preventDefault();
-  const me = cur();
-  const name = $('f-name').value.trim(), product = $('f-product').value, cid = $('f-company').value,
-        contact = $('f-contact').value, samples = parseInt($('f-samples').value), amount = parseFloat($('f-amount').value);
-  if (!name || !product || !cid || !contact || !samples || samples < 1 || !amount || amount <= 0){
-    toast('⚠️ 请完整填写表单后再提交'); return false;
-  }
-  const c = companies.find(x => x.id === cid);
-  contracts.push({ id:'k' + Date.now(), no:nextNo(), name, product, companyId:cid, companyName:c.name,
-    contactName:contact, samples, amount, salesId:me.id, sales:me.name, date:todayStr(),
-    status:'待审批', approveDate:'', approver:'', reason:'' });
-  toast('✅ 合同已创建，将流转给「' + routedApproverName(contracts[contracts.length-1]) + '」审批');
-  view = 'records'; render();
-  return false;
-}
-
-/* ═══════════ ③ 电子合同记录 ═══════════ */
-function onRecordSearch(){ recQ = $('rq').value; viewRecords(); const el = $('rq'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
-function viewRecords(){
-  const me = cur();
-  let list = contracts.slice().reverse().filter(c => visibleTo(me, c));
-  if (recF !== '全部') list = list.filter(c => c.status === recF);
-  if (recQ.trim()){
-    const kw = recQ.trim().toLowerCase();
-    list = list.filter(c => c.no.toLowerCase().includes(kw) || c.name.toLowerCase().includes(kw) || c.companyName.toLowerCase().includes(kw));
-  }
-  const sub = me.level===3 ? '老板视图 · 显示全部合同'
-    : me.level===2 ? '销售总监视图 · 本人及下属专员提交的合同'
-    : '当前销售：' + esc(me.name) + ' · 仅显示本人创建的合同';
-  $('main').innerHTML = '<div class="container">' +
-    '<div class="page-head"><div><h2>电子合同记录</h2><div class="sub">' + sub + '</div></div><div class="spacer"></div>' +
-    '<input type="search" id="rq" placeholder="搜索单号 / 合同名称 / 单位" style="width:240px" value="' + esc(recQ) + '" oninput="onRecordSearch()">' +
-    '<select style="width:130px" onchange="recF=this.value;viewRecords()">' +
-      ['全部','待审批','已通过','已驳回'].map(s => '<option' + (s===recF?' selected':'') + '>' + s + '</option>').join('') + '</select></div>' +
-    '<div class="card"><div class="table-wrap"><table>' +
-    '<thead><tr><th>单号</th><th>合同名称</th><th>客户单位</th><th>产品</th><th>样本数</th><th>金额</th><th>销售</th><th>创建日期</th><th>审批进度</th><th>审批时间</th><th></th></tr></thead><tbody>' +
-    (list.map(c =>
-      '<tr><td class="mono">' + c.no + '</td>' +
-      '<td><b>' + esc(c.name) + '</b></td>' +
-      '<td>' + esc(c.companyName) + '</td>' +
-      '<td>' + esc(c.product) + '</td>' +
-      '<td>' + c.samples + '</td>' +
-      '<td><b>' + money(c.amount) + '</b></td>' +
-      '<td>' + esc(c.sales) + '</td>' +
-      '<td>' + c.date + '</td>' +
-      '<td>' + stepsHtml(c) + '</td>' +
-      '<td>' + (c.approveDate || '<span class="hint">—</span>') + '</td>' +
-      '<td><button class="btn btn-sm" onclick="modalContract(\'' + c.id + '\')">详情</button></td></tr>'
-    ).join('') || emptyRow(11,'暂无合同记录，点击左侧「新建电子合同」开始')) +
-    '</tbody></table></div></div></div>';
-}
-function stepsHtml(c){
-  if (c.status === '待审批') return '<div class="steps">' +
-    '<div class="step done"><div class="dot">✓</div><div class="lb">已提交</div></div><div class="step-line on"></div>' +
-    '<div class="step active"><div class="dot">2</div><div class="lb">待审批</div></div><div class="step-line"></div>' +
-    '<div class="step"><div class="dot">3</div><div class="lb">审批完成</div></div></div>';
-  if (c.status === '已通过') return '<div class="steps">' +
-    '<div class="step done"><div class="dot">✓</div><div class="lb">已提交</div></div><div class="step-line on"></div>' +
-    '<div class="step done"><div class="dot">✓</div><div class="lb">待审批</div></div><div class="step-line on"></div>' +
-    '<div class="step done"><div class="dot">✓</div><div class="lb">已通过</div></div></div>';
-  return '<div class="steps">' +
-    '<div class="step done"><div class="dot">✓</div><div class="lb">已提交</div></div><div class="step-line on"></div>' +
-    '<div class="step done"><div class="dot">✓</div><div class="lb">待审批</div></div><div class="step-line reject"></div>' +
-    '<div class="step reject"><div class="dot">✕</div><div class="lb">已驳回</div></div></div>';
-}
-
-/* ═══════════ ④ 电子合同审批（总监 / 老板） ═══════════ */
-function viewApproval(){
-  const me = cur();
-  const pending = myQueue();
-  const done = contracts.filter(c => c.status !== '待审批' && visibleTo(me, c)).slice().reverse();
-  const list = tab === 'pending' ? pending : done;
-  const sub = me.level===3
-    ? '老板权限：可审批全部待审批合同（含总监提交、未分配上级的专员提交）'
-    : '审批范围：直属下级（销售专员）提交的合同';
-  $('main').innerHTML = '<div class="container">' +
-    '<div class="page-head"><div><h2>电子合同审批</h2><div class="sub">审批人：' + esc(me.name) + '（' + levelName(me.level) + '）· ' + sub + '</div></div></div>' +
-    '<div class="tabs">' +
-      '<button class="tab ' + (tab==='pending'?'active':'') + '" onclick="tab=\'pending\';render()">待审批（' + pending.length + '）</button>' +
-      '<button class="tab ' + (tab==='done'?'active':'') + '" onclick="tab=\'done\';render()">已处理（' + done.length + '）</button></div>' +
-    '<div class="card"><div class="table-wrap"><table>' +
-    '<thead><tr><th>单号</th><th>合同名称</th><th>客户单位</th><th>产品</th><th>样本数</th><th>金额</th><th>销售</th><th>提交日期</th><th>状态</th><th>操作</th></tr></thead><tbody>' +
-    (list.map(c => {
-      const s = staff.find(x => x.id===c.salesId);
-      return '<tr><td class="mono">' + c.no + '</td>' +
-      '<td><b>' + esc(c.name) + '</b></td>' +
-      '<td>' + esc(c.companyName) + '</td>' +
-      '<td>' + esc(c.product) + '</td>' +
-      '<td>' + c.samples + '</td>' +
-      '<td><b>' + money(c.amount) + '</b></td>' +
-      '<td>' + esc(c.sales) + (s ? ' <span class="hint">' + levelName(s.level) + '</span>' : '') + '</td>' +
-      '<td>' + c.date + '</td>' +
-      '<td>' + statusBadge(c.status) + '</td>' +
-      '<td>' + (tab === 'pending'
-        ? '<button class="btn btn-sm btn-success" onclick="approve(\'' + c.id + '\')">通过</button> <button class="btn btn-sm btn-danger" onclick="modalReject(\'' + c.id + '\')">驳回</button>'
-        : '<button class="btn btn-sm" onclick="modalContract(\'' + c.id + '\')">查看</button>') + '</td></tr>';
-    }).join('') || emptyRow(10, tab === 'pending' ? '🎉 没有待审批的合同' : '暂无已处理的合同')) +
-    '</tbody></table></div></div></div>';
-}
-function approve(id){
-  const me = cur();
-  const c = contracts.find(x => x.id === id);
-  c.status = '已通过'; c.approveDate = todayStr(); c.approver = me.name;
-  approvals.unshift({ time:nowStr(), no:c.no, name:c.name, submitter:c.sales, approver:me.name, result:'已通过', reason:'' });
-  toast('✅ 合同 ' + c.no + ' 审批通过');
-  render();
-}
-function modalReject(id){
-  const c = contracts.find(x => x.id === id);
-  showModal('<div class="modal"><h3>驳回合同</h3>' +
-    '<div class="hint" style="margin-bottom:14px">' + c.no + ' · ' + esc(c.name) + '</div>' +
-    '<form onsubmit="return submitReject(event,\'' + id + '\')">' +
-    '<div class="field"><label>驳回原因 *</label><textarea id="rj-reason" rows="3" required placeholder="请填写驳回原因，将反馈给销售"></textarea></div>' +
-    '<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">取消</button><button class="btn btn-danger">确认驳回</button></div>' +
-    '</form></div>');
-}
-function submitReject(e, id){
-  e.preventDefault();
-  const me = cur();
-  const c = contracts.find(x => x.id === id);
-  const reason = $('rj-reason').value.trim();
-  if (!reason) return false;
-  c.status = '已驳回'; c.approveDate = todayStr(); c.approver = me.name; c.reason = reason;
-  approvals.unshift({ time:nowStr(), no:c.no, name:c.name, submitter:c.sales, approver:me.name, result:'已驳回', reason });
-  closeModal();
-  toast('⛔ 合同 ' + c.no + ' 已驳回');
-  render();
-  return false;
-}
-
-/* ═══════════ ⑤ 员工管理（老板专属） ═══════════ */
-function viewStaff(){
-  const list = staff.filter(s => s.level < 3);
-  const l2 = staff.filter(s => s.level === 2);
-  $('main').innerHTML = '<div class="container">' +
-    '<div class="page-head"><div><h2>销售员工管理</h2><div class="sub">创建销售账号 · 职级晋升（一级→二级权限）· 配置审批流归属</div></div><div class="spacer"></div>' +
-    '<button class="btn btn-primary" onclick="modalNewStaff()">＋ 创建销售账号</button></div>' +
-    '<div class="card"><div class="table-wrap"><table>' +
-    '<thead><tr><th>姓名</th><th>职级</th><th>审批上级</th><th>合同数</th><th>合同总额</th><th>待审批</th><th>加入时间</th><th>操作</th></tr></thead><tbody>' +
-    list.map(s => {
-      const own = contracts.filter(c => c.salesId === s.id);
-      const amt = own.reduce((a,c) => a + c.amount, 0);
-      const pend = own.filter(c => c.status === '待审批').length;
-      let bossCell;
-      if (s.level === 2) bossCell = '<span class="hint">老板（默认上级）</span>';
-      else if (!l2.length) bossCell = '<span class="hint">未分配 · 暂无总监</span>';
-      else bossCell = '<select class="boss-sel" onchange="assignBoss(\'' + s.id + '\',this.value)">' +
-        '<option value=""' + (s.bossId?'':' selected') + '>未分配（老板代审）</option>' +
-        l2.map(d => '<option value="' + d.id + '"' + (s.bossId===d.id?' selected':'') + '>' + esc(d.name) + '</option>').join('') + '</select>';
-      const op = s.level === 1
-        ? '<button class="btn btn-sm btn-primary" onclick="promote(\'' + s.id + '\')">晋升总监</button>'
-        : '<button class="btn btn-sm" onclick="demote(\'' + s.id + '\')">降级为专员</button>';
-      return '<tr><td><b>' + esc(s.name) + '</b></td><td>' + levelBadge(s.level) + '</td><td>' + bossCell + '</td>' +
-        '<td>' + own.length + ' 份</td><td><b>' + money(amt) + '</b></td><td>' + pend + '</td><td>' + s.createdAt + '</td><td>' + op + '</td></tr>';
-    }).join('') +
-    '</tbody></table></div></div></div>';
-}
-function modalNewStaff(){
-  const l2 = staff.filter(s => s.level === 2);
-  showModal('<div class="modal"><h3>创建销售账号</h3>' +
-    '<form onsubmit="return submitNewStaff(event)">' +
-    '<div class="field"><label>姓名 *</label><input id="ns-name" required placeholder="请输入姓名"></div>' +
-    '<div class="field"><label>职级 *</label><select id="ns-level" onchange="onNsLevel()">' +
-      '<option value="1">销售专员（一级权限）</option><option value="2">销售总监（二级权限 · 具有审批权）</option></select></div>' +
-    '<div class="field" id="ns-boss-field"><label>审批上级（直属总监）</label><select id="ns-boss">' +
-      (l2.length ? '<option value="">未分配（由老板代审）</option>' + l2.map(d => '<option value="' + d.id + '">' + esc(d.name) + '</option>').join('') : '<option value="">暂无总监（由老板代审）</option>') + '</select>' +
-      '<div class="hint">' + (l2.length ? '未分配时，该专员提交的合同暂由老板审批' : '暂无销售总监，专员合同暂由老板审批，可在员工管理中再分配') + '</div></div>' +
-    '<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary">创建</button></div>' +
-    '</form></div>');
-}
-function onNsLevel(){ $('ns-boss-field').style.display = $('ns-level').value === '1' ? '' : 'none'; }
-function submitNewStaff(e){
-  e.preventDefault();
-  const name = $('ns-name').value.trim();
-  if (!name){ toast('⚠️ 请输入姓名'); return false; }
-  const level = parseInt($('ns-level').value);
-  const used = staff.map(s => s.slot); let slot = 1; while (used.includes(slot) && slot < 8) slot++;
-  staff.push({ id:'u' + Date.now(), name, level, bossId: level===1 ? $('ns-boss').value : null, createdAt: todayStr(), slot });
-  closeModal();
-  toast(level===1 ? '✅ 销售专员「' + name + '」已创建' : '✅ 销售总监「' + name + '」已创建（具有审批权）');
-  sanitize(); render();
-  return false;
-}
-function assignBoss(uid, val){
-  const s = staff.find(x => x.id === uid); if (!s) return;
-  s.bossId = val;
-  toast(val
-    ? '✅ 「' + s.name + '」的审批上级已设为「' + staff.find(x => x.id===val).name + '」'
-    : '已清除「' + s.name + '」的审批上级，其合同暂由老板审批');
-  render();
-}
-function promote(id){
-  const s = staff.find(x => x.id === id);
-  if (!s || s.level !== 1) return;
-  if (!confirm('确认将「' + s.name + '」晋升为销售总监？\n晋升后其提交的合同将流转给老板审批，且可审批直属专员的合同。')) return;
-  s.level = 2; s.bossId = null;
-  toast('✅ 「' + s.name + '」已晋升为销售总监');
-  sanitize(); render();
-}
-function demote(id){
-  const s = staff.find(x => x.id === id);
-  if (!s || s.level !== 2) return;
-  if (!confirm('确认将「' + s.name + '」降级为销售专员？\n其下属专员的审批归属将被清除（合同暂由老板审批）。')) return;
-  staff.forEach(x => { if (x.level === 1 && x.bossId === id) x.bossId = ''; });
-  s.level = 1;
-  const other = staff.find(x => x.level === 2 && x.id !== id);
-  s.bossId = other ? other.id : '';
-  toast('✅ 「' + s.name + '」已降级为销售专员');
-  sanitize(); render();
-}
-
-/* ═══════════ ⑥ 项目及单位管理（老板专属） ═══════════ */
-function viewProjects(){
-  $('main').innerHTML = '<div class="container">' +
-    '<div class="page-head"><div><h2>项目及单位管理</h2><div class="sub">管理客户单位、单位余额与历史项目（老板专属）</div></div></div>' +
-    '<div class="card"><div class="table-wrap"><table>' +
-    '<thead><tr><th>单位名称</th><th>单位余额</th><th>联系人</th><th>历史项目</th><th>操作</th></tr></thead><tbody>' +
-    (companies.map(c =>
-      '<tr><td><b>' + esc(c.name) + '</b></td>' +
-      '<td><b style="color:var(--primary)">' + money(c.balance) + '</b></td>' +
-      '<td>' + c.contacts.length + ' 人</td>' +
-      '<td>' + c.projects.length + ' 个</td>' +
-      '<td><button class="btn btn-sm" onclick="modalEditCompany(\'' + c.id + '\')">编辑单位</button> ' +
-      '<button class="btn btn-sm" onclick="modalProjects(\'' + c.id + '\')">项目</button> ' +
-      '<button class="btn btn-sm btn-danger" onclick="delCompany(\'' + c.id + '\')">删除</button></td></tr>'
-    ).join('') || emptyRow(5,'暂无单位，可在「客户管理」中新建')) +
-    '</tbody></table></div></div></div>';
-}
-function modalEditCompany(id){
-  const c = companies.find(x => x.id === id);
-  showModal('<div class="modal"><h3>编辑单位</h3>' +
-    '<form onsubmit="return submitEditCompany(event,\'' + id + '\')">' +
-    '<div class="field"><label>单位名称 *</label><input id="ec-name" required value="' + esc(c.name) + '"></div>' +
-    '<div class="field"><label>单位余额（元）</label><input id="ec-balance" type="number" min="0" step="0.01" value="' + c.balance + '"></div>' +
-    '<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary">保存</button></div>' +
-    '</form></div>');
-}
-function submitEditCompany(e, id){
-  e.preventDefault();
-  const c = companies.find(x => x.id === id);
-  const name = $('ec-name').value.trim();
-  if (!name){ toast('⚠️ 请输入单位名称'); return false; }
-  c.name = name; c.balance = parseFloat($('ec-balance').value) || 0;
-  closeModal(); toast('✅ 单位信息已保存'); render();
-  return false;
-}
-function modalProjects(cid){
-  const c = companies.find(x => x.id === cid);
-  showModal('<div class="modal" style="max-width:620px"><h3>' + esc(c.name) + ' · 历史项目</h3>' +
-    (c.projects.length
-      ? '<div class="table-wrap"><table><thead><tr><th>项目名称</th><th>产品</th><th>金额</th><th>状态</th><th>日期</th><th></th></tr></thead><tbody>' +
-        c.projects.map(p => '<tr><td><b>' + esc(p.name) + '</b></td><td>' + esc(p.product) + '</td><td>' + money(p.amount) + '</td><td>' + statusBadge(p.status) + '</td><td>' + p.date + '</td>' +
-        '<td><button class="btn btn-sm btn-danger" onclick="delProject(\'' + cid + '\',\'' + p.id + '\')">删除</button></td></tr>').join('') + '</tbody></table></div>'
-      : '<div class="empty">该单位暂无历史项目</div>') +
-    '<div class="modal-actions"><button class="btn btn-primary" onclick="modalAddProject(\'' + cid + '\')">＋ 添加项目</button><button class="btn" onclick="closeModal()">关闭</button></div></div>');
-}
-function modalAddProject(cid){
-  const c = companies.find(x => x.id === cid);
-  showModal('<div class="modal"><h3>添加项目 · ' + esc(c.name) + '</h3>' +
-    '<form onsubmit="return submitAddProject(event,\'' + cid + '\')">' +
-    '<div class="field"><label>项目名称 *</label><input id="ap-name" required placeholder="请输入项目名称"></div>' +
-    '<div class="field"><label>项目产品 *</label><select id="ap-product" required><option value="">请选择产品</option>' +
-      PRODUCTS.map(p => '<option value="' + p.name + '">' + p.name + '</option>').join('') + '</select></div>' +
-    '<div class="form-grid">' +
-      '<div class="field"><label>金额（元）</label><input id="ap-amount" type="number" min="0" step="0.01" value="0"></div>' +
-      '<div class="field"><label>开始日期</label><input id="ap-date" type="date" value="' + todayStr() + '"></div>' +
-    '</div>' +
-    '<div class="field"><label>当前状态</label><select id="ap-status"><option>进行中</option><option>已完成</option><option>已终止</option></select></div>' +
-    '<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary">添加</button></div>' +
-    '</form></div>');
-}
-function submitAddProject(e, cid){
-  e.preventDefault();
-  const c = companies.find(x => x.id === cid);
-  const name = $('ap-name').value.trim(), product = $('ap-product').value;
-  if (!name || !product){ toast('⚠️ 请填写项目名称并选择产品'); return false; }
-  c.projects.push({ id:'pr' + Date.now(), name, product,
-    amount: parseFloat($('ap-amount').value) || 0, status: $('ap-status').value, date: $('ap-date').value || todayStr() });
-  toast('✅ 项目「' + name + '」已添加到「' + c.name + '」');
-  modalProjects(cid);
-  return false;
-}
-function delProject(cid, pid){
-  const c = companies.find(x => x.id === cid);
-  const p = c.projects.find(x => x.id === pid);
-  if (!confirm('确认删除项目「' + p.name + '」？')) return;
-  c.projects = c.projects.filter(x => x.id !== pid);
-  toast('已删除项目「' + p.name + '」');
-  modalProjects(cid);
-}
-function delCompany(id){
-  const c = companies.find(x => x.id === id);
-  if (!confirm('确认删除单位「' + c.name + '」？\n将同时删除其联系人与历史项目（已签合同保留历史快照）。')) return;
-  companies = companies.filter(x => x.id !== id);
-  if (view === 'company' && param === id){ view = 'customers'; param = null; }
-  toast('已删除单位「' + c.name + '」');
-  render();
-}
-
-/* ═══════════ ⑦ 商单审批记录（老板专属） ═══════════ */
-function onLogSearch(){ logQ = $('alq').value; viewApprovalLog(); const el = $('alq'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
-function viewApprovalLog(){
-  const kw = logQ.trim().toLowerCase();
-  const list = approvals.filter(a => !kw || a.no.toLowerCase().includes(kw) || a.name.toLowerCase().includes(kw) ||
-    a.submitter.toLowerCase().includes(kw) || a.approver.toLowerCase().includes(kw));
-  $('main').innerHTML = '<div class="container">' +
-    '<div class="page-head"><div><h2>商单审批记录</h2><div class="sub">全部审批操作流水（老板专属）</div></div><div class="spacer"></div>' +
-    '<input type="search" id="alq" placeholder="搜索单号 / 合同 / 人员" style="width:250px" value="' + esc(logQ) + '" oninput="onLogSearch()"></div>' +
-    '<div class="card"><div class="table-wrap"><table>' +
-    '<thead><tr><th>审批时间</th><th>单号</th><th>合同名称</th><th>提交人</th><th>审批人</th><th>结果</th><th>驳回原因</th></tr></thead><tbody>' +
-    (list.map(a =>
-      '<tr><td>' + a.time + '</td>' +
-      '<td class="mono">' + a.no + '</td>' +
-      '<td><b>' + esc(a.name) + '</b></td>' +
-      '<td>' + esc(a.submitter) + '</td>' +
-      '<td>' + esc(a.approver) + '</td>' +
-      '<td>' + statusBadge(a.result) + '</td>' +
-      '<td>' + (a.reason ? esc(a.reason) : '<span class="hint">—</span>') + '</td></tr>'
-    ).join('') || emptyRow(7,'暂无审批记录')) +
-    '</tbody></table></div></div></div>';
-}
-
-/* ═══════════ ⑧ 统计信息（老板专属） ═══════════ */
-function viewStats(){
-  const s1 = staff.filter(s => s.level === 1);
-  const s2 = staff.filter(s => s.level === 2);
-  const pending = contracts.filter(c => c.status === '待审批').length;
-  const total = contracts.reduce((a,c) => a + c.amount, 0);
-  const m = nowStr().slice(0,7);
-  const month = contracts.filter(c => c.date.startsWith(m)).length;
-  const rank = staff.filter(s => s.level < 3).map(s => {
-    const own = contracts.filter(c => c.salesId === s.id);
-    return { s, n: own.length, amt: own.reduce((a,c) => a + c.amount, 0), p: own.filter(c => c.status === '待审批').length };
-  }).sort((a,b) => b.amt - a.amt);
-  const max = Math.max(1, ...rank.map(r => r.amt));
-  tipData = {};
-  rank.forEach(r => { tipData[r.s.id] = { name:r.s.name, n:r.n, p:r.p, amt:r.amt }; });
-  const stCount = { '待审批':0, '已通过':0, '已驳回':0 };
-  contracts.forEach(c => { if (c.status in stCount) stCount[c.status]++; });
-  const kpi = (k,v,sub) => '<div class="kpi"><div class="k">' + k + '</div><div class="v">' + v + '</div><div class="s">' + sub + '</div></div>';
-  const stSeg = [['待审批','--st-warn','⏳'],['已通过','--st-good','✓'],['已驳回','--st-crit','✕']];
-  $('main').innerHTML = '<div class="container">' +
-    '<div class="page-head"><div><h2>统计信息</h2><div class="sub">全公司经营数据概览（老板专属）</div></div></div>' +
-    '<div class="kpis">' +
-      kpi('销售专员', s1.length + ' 人', s1.length ? s1.map(x => esc(x.name)).join(' · ') : '暂无') +
-      kpi('销售总监', s2.length + ' 人', s2.length ? s2.map(x => esc(x.name)).join(' · ') : '暂无') +
-      kpi('待审批合同', pending + ' 份', '等待总监 / 老板处理') +
-      kpi('合同总额', money(total), '共 ' + contracts.length + ' 份合同') +
-      kpi('本月新增', month + ' 份', m) +
-    '</div>' +
-    '<div class="card"><h3>各销售业绩排名（按合同金额）</h3><div class="viz">' +
-      rank.map(r =>
-        '<div class="rank-row" onmouseenter="showTip(event,\'' + r.s.id + '\')" onmousemove="moveTip(event)" onmouseleave="hideTip()">' +
-        '<div class="rank-name">' + esc(r.s.name) + ' <span class="hint">' + levelName(r.s.level) + '</span></div>' +
-        '<div class="rank-track">' + (r.amt > 0 ? '<div class="rank-fill" style="width:' + (r.amt / max * 100) + '%;background:var(--s' + r.s.slot + ')"></div>' : '') + '</div>' +
-        '<div class="rank-val">' + money(r.amt) + ' · ' + r.n + ' 份</div></div>').join('') +
+      '<div style="flex:1;min-width:220px"><h2>' + esc(c.name) + '</h2><div class="hint">' + esc(c.org) + '</div></div>' +
+      '<div class="stat"><div class="k">签订合同数</div><div class="v">' + st.n + ' 份</div></div>' +
+      '<div class="stat"><div class="k">运行分析任务</div><div class="v">' + st.running + ' 个</div></div>' +
+      '<div class="stat"><div class="k">认款总额度</div><div class="v" style="color:var(--green)">' + money(st.paid) + '</div></div>' +
+      '<div class="stat"><div class="k">合同总额度</div><div class="v" style="color:var(--primary)">' + money(st.ctotal) + '</div></div>' +
+      '<button class="btn btn-primary" onclick="modalNewContract(\'' + c.id + '\')">＋ 新建合同</button>' +
     '</div></div>' +
-    '<div class="card"><h3>合同状态分布</h3><div class="viz">' +
-      '<div class="stack">' + stSeg.map(([st,c]) => stCount[st]
-        ? '<div class="stack-seg" style="flex:' + stCount[st] + ';background:var(' + c + ')" title="' + st + ' ' + stCount[st] + ' 份"></div>' : '').join('') + '</div>' +
-      '<div class="legend">' + stSeg.map(([st,c,ic]) =>
-        '<span><span class="lg-dot" style="background:var(' + c + ')"></span>' + ic + ' ' + st + ' <b>' + stCount[st] + '</b> 份</span>').join('') + '</div>' +
-    '</div></div></div>';
+    '<div class="card"><h3>客户信息</h3><div class="info-grid">' +
+      '<div><div class="k">姓名</div><div class="v">' + esc(c.name) + '</div></div>' +
+      '<div><div class="k">电话</div><div class="v">' + esc(c.phone) + '</div></div>' +
+      '<div><div class="k">邮箱</div><div class="v">' + esc(c.email) + '</div></div>' +
+      '<div><div class="k">单位</div><div class="v">' + esc(c.org) + '</div></div>' +
+      '<div><div class="k">收件地址</div><div class="v">' + esc(c.address) + '</div></div>' +
+      '<div><div class="k">发票信息</div><div class="v">' + esc(c.invoice) + '</div></div>' +
+    '</div></div>' +
+    '<div class="card"><h3>名下大合同（' + cts.length + '）</h3><div class="table-wrap"><table>' +
+    '<thead><tr><th>合同名称</th><th>线下合同编号</th><th>金额</th><th>开始时间</th><th>总期限</th><th>分析批次</th><th>操作</th></tr></thead><tbody>' +
+    (cts.map(ct => {
+      const bs = batchesOfContract(ct);
+      return '<tr class="clickable" onclick="openContract(\'' + ct.id + '\')">' +
+        '<td><b>' + esc(ct.name) + '</b></td>' +
+        '<td class="mono">' + esc(ct.offlineNo) + '</td>' +
+        '<td><b>' + money(ct.amount) + '</b></td>' +
+        '<td>' + ct.startDate + '</td>' +
+        '<td>' + ct.termYears + ' 年</td>' +
+        '<td>' + bs.length + ' 个</td>' +
+        '<td><button class="btn btn-sm" onclick="event.stopPropagation();openContract(\'' + ct.id + '\')">查看</button></td></tr>';
+    }).join('') || emptyRow(7,'该客户名下暂无合同，点击右上角「新建合同」')) +
+    '</tbody></table></div></div></div>';
 }
-function showTip(e, id){
-  const r = tipData[id]; if (!r) return;
-  const t = $('tip');
-  t.innerHTML = '<b>' + esc(r.name) + '</b><br>合同 ' + r.n + ' 份 · 待审批 ' + r.p + ' 份<br>合同总额 ' + money(r.amt);
-  t.hidden = false;
-  moveTip(e);
-}
-function moveTip(e){
-  const t = $('tip');
-  t.style.left = Math.min(e.clientX + 14, window.innerWidth - 260) + 'px';
-  t.style.top = (e.clientY + 14) + 'px';
-}
-function hideTip(){ $('tip').hidden = true; }
 
-/* ═══════════ 弹窗：新建单位 / 新建联系人 / 合同详情 ═══════════ */
-function modalNewCompany(){
-  showModal('<div class="modal"><h3>新建单位</h3>' +
-    '<form onsubmit="return submitNewCompany(event)">' +
-    '<div class="field"><label>单位名称 *</label><input id="nc-name" required placeholder="请输入单位名称"></div>' +
-    '<div class="field"><label>初始余额（元）</label><input id="nc-balance" type="number" min="0" step="0.01" value="0"></div>' +
+/* ═══════════ ③ 合同详情：合同信息 + 分析批次 ═══════════ */
+function viewContract(id){
+  const ct = contracts.find(x => x.id === id);
+  if (!ct){ view = 'customers'; return render(); }
+  const c = custOf(ct);
+  const bs = batchesOfContract(ct);
+  const end = ct.startDate.replace(/^(\d{4})/, String(parseInt(ct.startDate.slice(0,4)) + ct.termYears));
+  $('main').innerHTML = '<div class="container">' +
+    crumbHtml([['客户管理','客户管理','nav(\'customers\')'],['客户',c.name,'openCustomer(\'' + c.id + '\')'],['合同',ct.name,'']]) +
+    '<div class="card"><div class="detail-head">' +
+      '<div class="avatar" style="background:var(--green-weak);color:var(--green)">📄</div>' +
+      '<div style="flex:1;min-width:220px"><h2>' + esc(ct.name) + '</h2>' +
+      '<div class="hint">线下编号 ' + esc(ct.offlineNo) + ' · 客户：' + esc(c.name) + '（' + esc(c.org) + '）</div></div>' +
+      '<div class="stat"><div class="k">合同金额</div><div class="v" style="color:var(--primary)">' + money(ct.amount) + '</div></div>' +
+      '<div class="stat"><div class="k">开始时间</div><div class="v">' + ct.startDate + '</div></div>' +
+      '<div class="stat"><div class="k">总期限</div><div class="v">' + ct.termYears + ' 年 <span class="hint">至 ' + end + '</span></div></div>' +
+      '<div class="stat"><div class="k">分析批次</div><div class="v">' + bs.length + ' 个</div></div>' +
+      '<button class="btn btn-primary" onclick="modalNewBatch(\'' + ct.id + '\')">＋ 创建分析批次</button>' +
+    '</div></div>' +
+    '<div class="card"><h3>合同下的分析批次（' + bs.length + '）</h3><div class="table-wrap"><table>' +
+    '<thead><tr><th>批次单号</th><th>批次名称</th><th>创建时间</th><th>项目数</th><th>样本数量</th><th>已认款金额</th><th>总金额</th><th>当前状态</th><th>操作</th></tr></thead><tbody>' +
+    (bs.map(b => {
+      const t = batchTotals(b);
+      return '<tr class="clickable" onclick="openBatch(\'' + b.id + '\')">' +
+        '<td class="mono">' + b.no + '</td>' +
+        '<td><b>' + esc(b.name) + '</b></td>' +
+        '<td>' + b.createdAt + '</td>' +
+        '<td>' + b.items.length + ' 项</td>' +
+        '<td>' + t.samples + '</td>' +
+        '<td><b style="color:var(--green)">' + money(t.paid) + '</b></td>' +
+        '<td><b>' + money(t.total) + '</b></td>' +
+        '<td>' + statusBadge(b.status) + '</td>' +
+        '<td><button class="btn btn-sm" onclick="event.stopPropagation();openBatch(\'' + b.id + '\')">查看</button></td></tr>';
+    }).join('') || emptyRow(9,'该合同下暂无分析批次，点击右上角「创建分析批次」')) +
+    '</tbody></table></div></div></div>';
+}
+
+/* ═══════════ ④ 批次详情：项目流水 + 认款 + 状态 ═══════════ */
+function viewBatch(id){
+  const b = batches.find(x => x.id === id);
+  if (!b){ view = 'batches'; return render(); }
+  const ct = contractOfBatch(b);
+  const c = custOf(ct);
+  const t = batchTotals(b);
+  const pct = t.total ? Math.round(t.paid / t.total * 100) : 0;
+  const actions = b.status === '待分析'
+    ? '<button class="btn btn-primary btn-sm" onclick="batchStart(\'' + b.id + '\')">▶ 开始分析</button>'
+    : b.status === '分析中'
+      ? '<button class="btn btn-success btn-sm" onclick="batchFinish(\'' + b.id + '\')">✓ 标记完成</button>'
+      : '';
+  $('main').innerHTML = '<div class="container">' +
+    crumbHtml([['客户管理','客户管理','nav(\'customers\')'],['客户',c.name,'openCustomer(\'' + c.id + '\')'],['合同',ct.name,'openContract(\'' + ct.id + '\')'],['批次',b.name,'']]) +
+    '<div class="card"><div class="detail-head">' +
+      '<div class="avatar" style="background:var(--amber-weak);color:var(--amber)">🧪</div>' +
+      '<div style="flex:1;min-width:220px"><h2>' + esc(b.name) + '</h2>' +
+      '<div class="hint">批次单号 <span class="mono">' + b.no + '</span> · 创建时间 ' + b.createdAt + '</div></div>' +
+      '<div class="stat"><div class="k">当前状态</div><div class="v">' + statusBadge(b.status) + '</div></div>' +
+      '<div class="stat"><div class="k">总金额</div><div class="v" style="color:var(--primary)">' + money(t.total) + '</div></div>' +
+      '<div class="stat" style="min-width:200px"><div class="k">已认款 ' + money(t.paid) + ' / ' + money(t.total) + '（' + pct + '%）</div>' +
+      '<div class="pay-track"><div class="pay-fill" style="width:' + pct + '%"></div></div></div>' +
+      '<button class="btn btn-success" onclick="modalPayment(\'' + b.id + '\')">💰 认款</button>' +
+      '<button class="btn btn-primary" onclick="modalAddItem(\'' + b.id + '\')">＋ 添加分析项目</button>' +
+      (actions ? actions : '') +
+    '</div></div>' +
+    '<div class="card"><h3>分析项目流水（' + b.items.length + ' 项，逐条累计）</h3><div class="table-wrap"><table>' +
+    '<thead><tr><th>项目</th><th>样本数量</th><th>本项目折扣</th><th>原价</th><th>现价</th><th></th></tr></thead><tbody>' +
+    (b.items.map((it,i) =>
+      '<tr><td><b>' + esc(it.product) + '</b><div class="hint">单价 ' + money(prodPrice(it.product)) + '/例</div></td>' +
+      '<td>' + it.samples + '</td>' +
+      '<td>' + it.discount + '%</td>' +
+      '<td>' + money(itemOriginal(it)) + '</td>' +
+      '<td><b>' + money(itemCurrent(it)) + '</b></td>' +
+      '<td><button class="btn btn-ghost btn-sm" onclick="delItem(\'' + b.id + '\',' + i + ')">移除</button></td></tr>'
+    ).join('') || emptyRow(6,'暂无分析项目，点击右上角「添加分析项目」逐条加入')) +
+    '<tr class="totals-row"><td>合计</td><td>' + t.samples + '</td><td>—</td><td>' + money(t.original) + '</td><td>' + money(t.total) + '</td><td></td></tr>' +
+    '</tbody></table></div></div>' +
+    '<div class="card"><h3>认款流水（' + (b.payments || []).length + ' 笔）</h3><div class="table-wrap"><table>' +
+    '<thead><tr><th>认款时间</th><th>金额</th><th>备注</th></tr></thead><tbody>' +
+    ((b.payments && b.payments.length)
+      ? b.payments.map(p => '<tr><td>' + p.time + '</td><td><b style="color:var(--green)">+' + money(p.amount) + '</b></td><td>' + esc(p.note || '—') + '</td></tr>').join('')
+      : emptyRow(3,'暂无认款记录，点击右上角「认款」录入')) +
+    '</tbody></table></div></div></div>';
+}
+function batchStart(id){
+  const b = batches.find(x => x.id === id);
+  b.status = '分析中';
+  toast('▶ 批次「' + b.name + '」已开始分析');
+  render();
+}
+function batchFinish(id){
+  const b = batches.find(x => x.id === id);
+  b.status = '已完成';
+  toast('✅ 批次「' + b.name + '」已标记完成');
+  render();
+}
+function delItem(id, i){
+  const b = batches.find(x => x.id === id);
+  const it = b.items[i];
+  if (!confirm('确认移除项目「' + it.product + '」？')) return;
+  b.items.splice(i, 1);
+  toast('已移除项目「' + it.product + '」');
+  render();
+}
+
+/* ═══════════ ⑤ 批次管理（全局列表） ═══════════ */
+function onBatchSearch(){ bq = $('bq').value; viewBatches(); const el = $('bq'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+function viewBatches(){
+  const kw = bq.trim().toLowerCase();
+  const list = batches.slice().reverse().filter(b => {
+    if (!kw) return true;
+    const ct = contractOfBatch(b), c = custOf(ct);
+    return b.no.toLowerCase().includes(kw) || b.name.toLowerCase().includes(kw) || (c && (c.name.toLowerCase().includes(kw) || c.org.toLowerCase().includes(kw)));
+  });
+  $('main').innerHTML = '<div class="container">' +
+    '<div class="page-head"><div><h2>批次管理</h2><div class="sub">全部合同下的分析批次总览</div></div><div class="spacer"></div>' +
+    '<input type="search" id="bq" placeholder="搜索批次单号 / 名称 / 客户" style="width:250px" value="' + esc(bq) + '" oninput="onBatchSearch()"></div>' +
+    '<div class="card"><div class="table-wrap"><table>' +
+    '<thead><tr><th>时间</th><th>批次单号</th><th>客户名称</th><th>项目数</th><th>样本数量</th><th>已经认款金额</th><th>总金额</th><th>当前状态</th><th>操作</th></tr></thead><tbody>' +
+    (list.map(b => {
+      const ct = contractOfBatch(b), c = custOf(ct);
+      const t = batchTotals(b);
+      return '<tr class="clickable" onclick="openBatch(\'' + b.id + '\')">' +
+        '<td>' + b.createdAt + '</td>' +
+        '<td class="mono">' + b.no + '</td>' +
+        '<td><b>' + esc(c ? c.name : '—') + '</b>' + (c ? '<div class="hint">' + esc(c.org) + '</div>' : '') + '</td>' +
+        '<td>' + b.items.length + ' 项</td>' +
+        '<td>' + t.samples + '</td>' +
+        '<td><b style="color:var(--green)">' + money(t.paid) + '</b></td>' +
+        '<td><b>' + money(t.total) + '</b></td>' +
+        '<td>' + statusBadge(b.status) + '</td>' +
+        '<td><button class="btn btn-sm" onclick="event.stopPropagation();openBatch(\'' + b.id + '\')">查看</button></td></tr>';
+    }).join('') || emptyRow(9,'暂无分析批次，进入客户 → 合同 → 创建分析批次')) +
+    '</tbody></table></div></div></div>';
+}
+
+/* ═══════════ 弹窗：创建客户 / 新建合同 / 创建批次 / 添加项目 / 认款 ═══════════ */
+function modalNewCustomer(){
+  showModal('<div class="modal"><h3>创建客户</h3>' +
+    '<form onsubmit="return submitNewCustomer(event)">' +
+    '<div class="form-grid">' +
+      '<div class="field"><label>姓名 *</label><input id="nc-name" required placeholder="请输入客户姓名"></div>' +
+      '<div class="field"><label>电话 *</label><input id="nc-phone" required placeholder="请输入联系电话"></div>' +
+    '</div>' +
+    '<div class="field"><label>邮箱</label><input id="nc-email" type="email" placeholder="name@example.com"></div>' +
+    '<div class="field"><label>单位</label><input id="nc-org" placeholder="请输入单位名称"></div>' +
+    '<div class="field"><label>收件地址</label><input id="nc-addr" placeholder="请输入收件地址"></div>' +
+    '<div class="field"><label>发票信息</label><textarea id="nc-invoice" rows="2" placeholder="发票抬头 / 类型 / 税号等"></textarea></div>' +
     '<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary">创建</button></div>' +
     '</form></div>');
 }
-function submitNewCompany(e){
+function submitNewCustomer(e){
   e.preventDefault();
-  const name = $('nc-name').value.trim();
-  if (!name){ toast('⚠️ 请输入单位名称'); return false; }
-  const id = 'c' + Date.now();
-  companies.push({ id, name, balance: parseFloat($('nc-balance').value) || 0, contacts:[], projects:[] });
+  const name = $('nc-name').value.trim(), phone = $('nc-phone').value.trim();
+  if (!name || !phone){ toast('⚠️ 请填写客户姓名和电话'); return false; }
+  const id = 'cu' + Date.now();
+  customers.push({ id, name, phone,
+    email: $('nc-email').value.trim() || '—',
+    org: $('nc-org').value.trim() || '—',
+    address: $('nc-addr').value.trim() || '—',
+    invoice: $('nc-invoice').value.trim() || '—' });
   closeModal();
-  toast('✅ 单位「' + name + '」已创建');
-  view = 'company'; param = id; render();
+  toast('✅ 客户「' + name + '」已创建');
+  openCustomer(id);
   return false;
 }
-function modalNewContact(cid){
-  const c = companies.find(x => x.id === cid);
-  showModal('<div class="modal"><h3>新建联系人</h3>' +
-    '<div class="hint" style="margin-bottom:14px">将自动绑定到单位：<b>' + esc(c.name) + '</b></div>' +
-    '<form onsubmit="return submitNewContact(event)">' +
-    '<div class="field"><label>联系人名称 *</label><input id="nc-name" required placeholder="请输入联系人名称"></div>' +
-    '<div class="field"><label>联系电话 *</label><input id="nc-phone" required placeholder="请输入联系电话"></div>' +
-    '<div class="field"><label>邮箱</label><input id="nc-email" type="email" placeholder="name@example.com"></div>' +
-    '<div class="field"><label>快递地址</label><input id="nc-addr" placeholder="请输入快递地址"></div>' +
-    '<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary">保存</button></div>' +
+function modalNewContract(customerId){
+  showModal('<div class="modal"><h3>新建合同</h3>' +
+    '<form onsubmit="return submitNewContract(event,\'' + customerId + '\')">' +
+    '<div class="field"><label>合同名称 *</label><input id="ct-name" required placeholder="请输入合同名称"></div>' +
+    '<div class="field"><label>线下合同编号</label><input id="ct-offno" placeholder="例如：HT-2026-0031"></div>' +
+    '<div class="form-grid">' +
+      '<div class="field"><label>金额（元）*</label><input id="ct-amount" type="number" min="0.01" step="0.01" required placeholder="例如：98000"></div>' +
+      '<div class="field"><label>开始时间 *</label><input id="ct-start" type="date" required value="' + todayStr() + '"></div>' +
+    '</div>' +
+    '<div class="field"><label>总期限（年）*</label><input id="ct-term" type="number" min="1" step="1" value="3" required></div>' +
+    '<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary">创建</button></div>' +
     '</form></div>');
 }
-function submitNewContact(e){
+function submitNewContract(e, customerId){
   e.preventDefault();
-  const c = companies.find(x => x.id === param);
-  if (!c) return false;
-  const name = $('nc-name').value.trim(), phone = $('nc-phone').value.trim(),
-        email = $('nc-email').value.trim(), addr = $('nc-addr').value.trim();
-  if (!name || !phone){ toast('⚠️ 请至少填写联系人名称和联系电话'); return false; }
-  c.contacts.push({ id:'t' + Date.now(), name, phone, email: email || '—', address: addr || '—' });
+  const name = $('ct-name').value.trim(), amount = parseFloat($('ct-amount').value);
+  if (!name || !amount || amount <= 0){ toast('⚠️ 请填写合同名称和金额'); return false; }
+  contracts.push({ id:'ct' + Date.now(), customerId,
+    name, offlineNo: $('ct-offno').value.trim() || '—',
+    amount, startDate: $('ct-start').value, termYears: parseInt($('ct-term').value) || 3 });
   closeModal();
-  toast('✅ 联系人「' + name + '」已添加，自动绑定「' + c.name + '」');
+  toast('✅ 合同「' + name + '」已创建，可继续创建分析批次');
   render();
   return false;
 }
-function modalContract(id){
-  const c = contracts.find(x => x.id === id);
-  if (!c) return;
-  const dotColor = c.status === '已通过' ? 'var(--green)' : (c.status === '已驳回' ? 'var(--red)' : 'var(--amber)');
-  showModal('<div class="modal"><h3>合同详情 <span class="mono" style="font-weight:400;font-size:13px">' + c.no + '</span></h3>' +
-    '<div class="info-grid">' +
-      '<div><div class="k">合同名称</div><div class="v">' + esc(c.name) + '</div></div>' +
-      '<div><div class="k">项目产品</div><div class="v">' + esc(c.product) + '</div></div>' +
-      '<div><div class="k">客户单位</div><div class="v">' + esc(c.companyName) + '</div></div>' +
-      '<div><div class="k">联系人</div><div class="v">' + esc(c.contactName) + '</div></div>' +
-      '<div><div class="k">样本数量</div><div class="v">' + c.samples + ' 例</div></div>' +
-      '<div><div class="k">合同金额</div><div class="v">' + money(c.amount) + '</div></div>' +
-      '<div><div class="k">销售</div><div class="v">' + esc(c.sales) + '</div></div>' +
-      '<div><div class="k">当前状态</div><div class="v">' + statusBadge(c.status) + '</div></div>' +
+function modalNewBatch(contractId){
+  showModal('<div class="modal"><h3>创建分析批次</h3>' +
+    '<div class="hint" style="margin-bottom:14px">批次创建后即可逐条添加分析项目；单号与创建时间自动生成</div>' +
+    '<form onsubmit="return submitNewBatch(event,\'' + contractId + '\')">' +
+    '<div class="field"><label>分析批名称 *</label><input id="nb-name" required placeholder="例如：万人基因组第一批"></div>' +
+    '<div class="field"><label>批次ID单号（自动生成）</label><div class="auto-box"><b>' + nextBatchNo() + '</b><span>🔒</span></div></div>' +
+    '<div class="field"><label>创建时间（自动生成）</label><div class="auto-box"><b>' + nowStr() + '</b><span>🔒</span></div></div>' +
+    '<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary">创建</button></div>' +
+    '</form></div>');
+}
+function submitNewBatch(e, contractId){
+  e.preventDefault();
+  const name = $('nb-name').value.trim();
+  if (!name){ toast('⚠️ 请输入分析批名称'); return false; }
+  const id = 'b' + Date.now();
+  batches.push({ id, contractId, name, no: nextBatchNo(), createdAt: nowStr(), status:'待分析', items:[], payments:[] });
+  closeModal();
+  toast('✅ 批次「' + name + '」已创建，可添加分析项目');
+  openBatch(id);
+  return false;
+}
+function modalAddItem(batchId){
+  showModal('<div class="modal"><h3>添加分析项目</h3>' +
+    '<div class="hint" style="margin-bottom:14px">原价 = 产品单价 × 样本数；现价 = 原价 ×（1 − 折扣）</div>' +
+    '<form onsubmit="return submitAddItem(event,\'' + batchId + '\')">' +
+    '<div class="field"><label>产品 *</label><select id="ai-product" required onchange="onAiProduct()"><option value="">请选择产品</option>' +
+      PRODUCTS.map(p => '<option value="' + esc(p.name) + '">' + p.name + ' · ' + money(p.price) + '/例</option>').join('') + '</select></div>' +
+    '<div class="form-grid">' +
+      '<div class="field"><label>样本数 *</label><input id="ai-samples" type="number" min="1" step="1" required placeholder="例：500"></div>' +
+      '<div class="field"><label>本项目折扣（%）</label><input id="ai-discount" type="number" min="0" max="100" step="1" value="0" oninput="onAiProduct()"></div>' +
     '</div>' +
-    '<h3 style="margin:20px 0 12px">审批进度</h3>' +
-    '<div class="timeline">' +
-      '<div class="t-item"><div class="t-dot"></div><div><div class="what">合同已提交</div><div class="when">' + c.date + ' · ' + esc(c.sales) + '</div></div></div>' +
-      (c.status === '待审批'
-        ? '<div class="t-item"><div class="t-dot" style="background:var(--amber)"></div><div><div class="what">等待「' + esc(routedApproverName(c)) + '」审批</div><div class="when">当前环节</div></div></div>'
-        : '<div class="t-item"><div class="t-dot" style="background:' + dotColor + '"></div><div><div class="what">' + (c.status === '已通过' ? '审批通过' : '审批驳回') + '</div><div class="when">' + c.approveDate + ' · ' + esc(c.approver) + (c.reason ? ' · 原因：' + esc(c.reason) : '') + '</div></div></div>') +
-    '</div>' +
-    '<div class="modal-actions"><button class="btn" onclick="closeModal()">关闭</button></div></div>');
+    '<div class="hint" id="ai-preview"></div>' +
+    '<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary">加入批次</button></div>' +
+    '</form></div>');
+}
+function onAiProduct(){
+  const name = $('ai-product').value, samples = parseInt($('ai-samples').value) || 0, disc = parseFloat($('ai-discount').value) || 0;
+  if (!name || !samples) { $('ai-preview').textContent = ''; return; }
+  const original = prodPrice(name) * samples, current = Math.round(original * (1 - disc/100));
+  $('ai-preview').innerHTML = '原价 <b>' + money(original) + '</b> → 现价 <b>' + money(current) + '</b>（折扣 ' + disc + '%）';
+}
+function submitAddItem(e, batchId){
+  e.preventDefault();
+  const b = batches.find(x => x.id === batchId);
+  const product = $('ai-product').value, samples = parseInt($('ai-samples').value), discount = parseFloat($('ai-discount').value) || 0;
+  if (!product || !samples || samples < 1){ toast('⚠️ 请选择产品并填写样本数'); return false; }
+  if (discount < 0 || discount > 100){ toast('⚠️ 折扣需在 0%–100% 之间'); return false; }
+  b.items.push({ product, samples, discount });
+  closeModal();
+  toast('✅ 已加入「' + product + ' × ' + samples + '」，可继续添加');
+  render();
+  return false;
+}
+function modalPayment(batchId){
+  const b = batches.find(x => x.id === batchId);
+  const t = batchTotals(b);
+  const left = t.total - t.paid;
+  showModal('<div class="modal"><h3>认款录入</h3>' +
+    '<div class="hint" style="margin-bottom:14px">批次「' + esc(b.name) + '」· 总金额 ' + money(t.total) + ' · 已认款 ' + money(t.paid) + ' · 待认款 ' + money(left) + '</div>' +
+    '<form onsubmit="return submitPayment(event,\'' + batchId + '\')">' +
+    '<div class="field"><label>认款金额（元）*</label><input id="pm-amount" type="number" min="0.01" step="0.01" required placeholder="例如：100000"></div>' +
+    '<div class="field"><label>备注</label><input id="pm-note" placeholder="例如：首付款 / 尾款"></div>' +
+    '<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">取消</button><button class="btn btn-success">确认认款</button></div>' +
+    '</form></div>');
+}
+function submitPayment(e, batchId){
+  e.preventDefault();
+  const b = batches.find(x => x.id === batchId);
+  const amount = parseFloat($('pm-amount').value);
+  if (!amount || amount <= 0){ toast('⚠️ 请输入认款金额'); return false; }
+  const note = $('pm-note').value.trim();
+  b.payments = b.payments || [];
+  b.payments.push({ time: nowStr(), amount, note: note || '' });
+  closeModal();
+  toast('💰 已认款 ' + money(amount) + '（累计 ' + money(batchTotals(b).paid) + '）');
+  render();
+  return false;
 }
 
 /* ═══════════ 启动 ═══════════ */
-sanitize();
 render();
 </script>
 </body>
