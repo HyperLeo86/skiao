@@ -163,6 +163,7 @@ label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
     <button data-role="sales" onclick="setRole('sales')">销售专员</button>
     <button data-role="director" onclick="setRole('director')">销售总监</button>
     <button data-role="ops" onclick="setRole('ops')">运营专员</button>
+    <button data-role="admin" onclick="setRole('admin')">管理员后台</button>
   </div>
   <div class="user" id="userChip"></div>
 </header>
@@ -183,7 +184,14 @@ const USERS = {
   sales:    { name:'张三',   title:'销售专员' },
   director: { name:'李国强', title:'销售总监' },
   ops:      { name:'李莉',   title:'运营专员' },
+  admin:    { name:'王总',   title:'管理员' },
 };
+const ROLE_NAMES = { sales:'销售专员', director:'销售总监', ops:'运营专员' };
+const roleName = r => ROLE_NAMES[r] || '—';
+function roleBadge(r){
+  const m = { sales:'b-blue', director:'b-purple', ops:'b-amber' };
+  return '<span class="badge ' + (m[r]||'b-gray') + '">' + roleName(r) + '</span>';
+}
 /* 产品目录：单价元/例（运营页面可维护） */
 let PRODUCTS = [
   { id:'p1',  name:'全基因组测序',   price:800  },
@@ -218,34 +226,34 @@ const SEED_CONTRACTS = [
 ];
 /* 分析批次：合同之下；状态流转：待提交 → 提交审批 → 待审批 →（领导审批）已通过 / 已驳回 */
 const SEED_BATCHES = [
-  { id:'b1', contractId:'ct1', name:'万人基因组第一批', no:'PC20261112-001', createdAt:'2026-11-12 10:23', status:'待审批',
+  { id:'b1', contractId:'ct1', name:'万人基因组第一批', no:'PC20261112-001', createdAt:'2026-11-12 10:23', status:'待审批', sales:'张三',
     items:[ { product:'全基因组测序', samples:500, discount:10 },
             { product:'肿瘤基因检测', samples:200, discount:0 } ],
     payments:[ { time:'2026-11-13 09:15', amount:200000, note:'首付款' } ],
     invoiceTotal:480000,
     invoices:[ { time:'2026-11-13 10:30', amount:100000, note:'首批开票' } ] },
-  { id:'b2', contractId:'ct2', name:'孕妇队列第一批', no:'PC20261115-001', createdAt:'2026-11-15 14:02', status:'待提交',
+  { id:'b2', contractId:'ct2', name:'孕妇队列第一批', no:'PC20261115-001', createdAt:'2026-11-15 14:02', status:'待提交', sales:'王芳',
     items:[ { product:'无创产前检测', samples:300, discount:15 } ],
     payments:[],
     invoiceTotal:306000,
     invoices:[] },
-  { id:'b3', contractId:'ct3', name:'病原溯源批次', no:'PC20261116-001', createdAt:'2026-11-16 09:40', status:'已通过',
+  { id:'b3', contractId:'ct3', name:'病原溯源批次', no:'PC20261116-001', createdAt:'2026-11-16 09:40', status:'已通过', sales:'张三', approver:'李国强', approveDate:'2026-11-16 15:00',
     items:[ { product:'病原微生物检测', samples:1000, discount:20 } ],
     payments:[ { time:'2026-11-16 16:30', amount:320000, note:'全款' } ],
     invoiceTotal:320000,
     invoices:[ { time:'2026-11-16 17:00', amount:320000, note:'' } ] },
-  { id:'b5', contractId:'ct4', name:'肺癌早筛批次', no:'PC20261119-001', createdAt:'2026-11-19 11:05', status:'待提交',
+  { id:'b5', contractId:'ct4', name:'肺癌早筛批次', no:'PC20261119-001', createdAt:'2026-11-19 11:05', status:'待提交', sales:'王芳',
     items:[ { product:'肿瘤基因检测', samples:150, discount:10 } ],
     payments:[],
     invoiceTotal:81000,
     invoices:[] },
-  { id:'b4', contractId:'ct5', name:'药物基因组批次', no:'PC20261120-001', createdAt:'2026-11-20 16:12', status:'已驳回',
+  { id:'b4', contractId:'ct5', name:'药物基因组批次', no:'PC20261120-001', createdAt:'2026-11-20 16:12', status:'已驳回', sales:'王芳', approver:'李国强', approveDate:'2026-11-20 18:00', reason:'样本数量与报价不符，请核实后重新提交',
     items:[ { product:'全基因组测序', samples:200, discount:5 },
             { product:'宏基因组测序', samples:100, discount:0 } ],
     payments:[ { time:'2026-11-20 17:00', amount:80000, note:'首付款' } ],
     invoiceTotal:222000,
     invoices:[ { time:'2026-11-20 17:30', amount:80000, note:'' } ] },
-  { id:'b6', contractId:'ct1', name:'万人基因组第二批', no:'PC20261120-002', createdAt:'2026-11-20 18:30', status:'已通过',
+  { id:'b6', contractId:'ct1', name:'万人基因组第二批', no:'PC20261120-002', createdAt:'2026-11-20 18:30', status:'已通过', sales:'张三', approver:'李国强', approveDate:'2026-11-21 09:00',
     items:[ { product:'全外显子组测序', samples:300, discount:5 },
             { product:'转录组测序', samples:300, discount:5 } ],
     payments:[ { time:'2026-11-21 10:00', amount:220000, note:'首付款' } ],
@@ -269,12 +277,28 @@ const SEED_INVOICE_REQS = [
   { id:'ir5', time:'2026-11-21 11:00', batchId:'b6', amount:150000, note:'首期开票', status:'已确认', opTime:'2026-11-21 11:20', sales:'张三' },
 ];
 
+/* 员工：role = sales/director/ops；bossId = 专员的汇报总监 */
+const SEED_STAFF = [
+  { id:'u1', name:'张三',   account:'zhangsan',    role:'sales',    createdAt:'2025-03-12', bossId:'u2' },
+  { id:'u2', name:'李国强', account:'liguoqiang',  role:'director', createdAt:'2024-06-01', bossId:'' },
+  { id:'u3', name:'李莉',   account:'lili',        role:'ops',      createdAt:'2024-09-10', bossId:'' },
+  { id:'u4', name:'王芳',   account:'wangfang',    role:'sales',    createdAt:'2025-08-20', bossId:'u2' },
+  { id:'u5', name:'陈晨',   account:'chenchen',    role:'sales',    createdAt:'2026-09-15', bossId:'' },
+];
+/* 员工自助注册申请：待管理员审批并赋予岗位 */
+const SEED_STAFF_REQS = [
+  { id:'r1', name:'赵敏', account:'zhaomin', time:'2026-11-21 09:12', status:'待审批' },
+  { id:'r2', name:'孙浩', account:'sunhao',  time:'2026-11-21 10:45', status:'待审批' },
+];
+
 /* ═══════════ 状态 ═══════════ */
 let customers = JSON.parse(JSON.stringify(SEED_CUSTOMERS));
 let contracts = JSON.parse(JSON.stringify(SEED_CONTRACTS));
 let batches   = JSON.parse(JSON.stringify(SEED_BATCHES));
 let paymentReqs = JSON.parse(JSON.stringify(SEED_PAYMENT_REQS));
 let invoiceReqs = JSON.parse(JSON.stringify(SEED_INVOICE_REQS));
+let staff = JSON.parse(JSON.stringify(SEED_STAFF));
+let staffReqs = JSON.parse(JSON.stringify(SEED_STAFF_REQS));
 let role = 'sales';         // sales | ops
 let view = 'customers';     // sales: customers | customer | batches；ops: payManage | invoiceManage | products
 let param = null;
@@ -327,7 +351,7 @@ const contractOfBatch = b => contracts.find(x => x.id === b.contractId) || null;
 /* ═══════════ 渲染 ═══════════ */
 function setRole(r){
   role = r;
-  view = r === 'ops' ? 'payManage' : 'customers';
+  view = r === 'ops' ? 'payManage' : (r === 'admin' ? 'batches' : 'customers');
   param = null;
   render();
 }
@@ -346,6 +370,8 @@ function renderSidebar(){
   let html = '';
   if (role === 'ops'){
     html = navBtn('payManage','💴','认款管理') + navBtn('invoiceManage','🧾','发票管理') + navBtn('products','📦','产品管理');
+  } else if (role === 'admin'){
+    html = navBtn('batches','🧪','批次管理') + navBtn('staff','👥','员工管理');
   } else {
     html = navBtn('customers','👥','客户管理') + navBtn('batches','🧪','批次管理');
   }
@@ -356,6 +382,11 @@ function renderView(){
     if (view === 'invoiceManage') viewInvoiceManage();
     else if (view === 'products') viewProducts();
     else viewPayManage();
+    return;
+  }
+  if (role === 'admin'){
+    if (view === 'staff') viewStaff();
+    else viewBatches();
     return;
   }
   if (view === 'customer') viewCustomer(param);
@@ -411,23 +442,32 @@ function toggleContract(id){
 }
 function batchTableHtml(bs, emptyMsg, mode){
   const director = mode === 'director';
+  const admin = mode === 'admin';
+  const cols = director ? 9 : (admin ? 10 : 8);
   return '<div class="table-wrap"><table>' +
-    '<thead><tr><th>时间</th><th>批次单号</th><th>客户名称</th><th>项目数</th><th>样本数量</th><th>已经认款金额</th><th>总金额</th><th>当前状态</th>' + (director ? '<th>操作</th>' : '') + '</tr></thead><tbody>' +
+    '<thead><tr><th>时间</th><th>批次单号</th><th>客户名称</th><th>项目数</th><th>样本数量</th><th>已经认款金额</th><th>总金额</th><th>当前状态</th>' +
+    (director ? '<th>操作</th>' : '') + (admin ? '<th>提交人</th><th>审批人</th>' : '') + '</tr></thead><tbody>' +
     batchRowsHtml(bs, emptyMsg, mode) +
     '</tbody></table></div>';
 }
 function batchRowsHtml(bs, emptyMsg, mode){
   const director = mode === 'director';
+  const admin = mode === 'admin';
+  const cols = director ? 9 : (admin ? 10 : 8);
   return bs.map(b => {
     const ct = contractOfBatch(b), c = custOf(ct);
     const t = batchTotals(b);
-    const statusCell = (b.status === '待提交' && !director)
+    const statusCell = (b.status === '待提交' && !director && !admin)
       ? '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();modalSubmitApproval(\'' + b.id + '\')">提交审批</button>'
       : statusBadge(b.status);
     const opCell = director
       ? (b.status === '待审批'
           ? '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();approveBatch(\'' + b.id + '\')">审批通过</button> <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();modalRejectBatch(\'' + b.id + '\')">驳回</button>'
           : '<span class="hint">—</span>')
+      : '';
+    const submitterCell = admin
+      ? '<td><b>' + esc(b.sales || '—') + '</b></td><td>' +
+        (b.approver ? esc(b.approver) + '<div class="hint">' + (b.approveDate || '') + '</div>' : (b.status === '待审批' ? '<span class="hint">待审批</span>' : '<span class="hint">—</span>')) + '</td>'
       : '';
     return '<tr class="clickable" onclick="modalBatch(\'' + b.id + '\')">' +
       '<td>' + b.createdAt + '</td>' +
@@ -438,8 +478,9 @@ function batchRowsHtml(bs, emptyMsg, mode){
       '<td><b style="color:var(--green)">' + money(t.paid) + '</b></td>' +
       '<td><b>' + money(t.total) + '</b></td>' +
       '<td>' + statusCell + '</td>' +
-      (director ? '<td>' + opCell + '</td>' : '') + '</tr>';
-  }).join('') || emptyRow(director ? 9 : 8, emptyMsg);
+      (director ? '<td>' + opCell + '</td>' : '') +
+      submitterCell + '</tr>';
+  }).join('') || emptyRow(cols, emptyMsg);
 }
 function viewCustomer(id){
   const c = customers.find(x => x.id === id);
@@ -497,13 +538,16 @@ function viewBatches(){
     return b.no.toLowerCase().includes(kw) || b.name.toLowerCase().includes(kw) || (c && (c.name.toLowerCase().includes(kw) || c.org.toLowerCase().includes(kw)));
   });
   const isDirector = role === 'director';
+  const isAdmin = role === 'admin';
   const sub = isDirector
     ? '销售总监视图 · 对待审批批次执行「审批通过」或「驳回」'
-    : '全部合同下的分析批次总览，点击批次查看详情';
+    : isAdmin
+      ? '管理员视图 · 查看批次提交的销售人员与审批的销售总监信息'
+      : '全部合同下的分析批次总览，点击批次查看详情';
   $('main').innerHTML = '<div class="container">' +
     '<div class="page-head"><div><h2>批次管理</h2><div class="sub">' + sub + '</div></div><div class="spacer"></div>' +
     '<input type="search" id="bq" placeholder="搜索批次单号 / 名称 / 客户" style="width:250px" value="' + esc(bq) + '" oninput="onBatchSearch()"></div>' +
-    '<div class="card">' + batchTableHtml(list, '暂无分析批次，进入客户 → 合同 → 新建批次', isDirector ? 'director' : 'sales') + '</div></div>';
+    '<div class="card">' + batchTableHtml(list, '暂无分析批次，进入客户 → 合同 → 新建批次', isDirector ? 'director' : (isAdmin ? 'admin' : 'sales')) + '</div></div>';
 }
 function approveBatch(id){
   const b = batches.find(x => x.id === id);
@@ -618,7 +662,7 @@ function confirmNewBatch(){
   if (!name){ toast('⚠️ 请输入分析批名称'); return false; }
   const id = 'b' + Date.now();
   const total = draft.items.reduce((a,i) => a + itemCurrent(i), 0);
-  batches.push({ id, contractId: draft.contractId, name, no: nextBatchNo(), createdAt: nowStr(), status:'待提交', items: draft.items.slice(), payments:[], invoiceTotal: total, invoices:[] });
+  batches.push({ id, contractId: draft.contractId, name, no: nextBatchNo(), createdAt: nowStr(), status:'待提交', items: draft.items.slice(), payments:[], invoiceTotal: total, invoices:[], sales: USERS[role].name });
   draft = null; closeModal();
   toast('✅ 批次「' + name + '」已保存，可在列表中点击绿色「提交审批」');
   render();
@@ -645,6 +689,7 @@ function modalBatch(id){
     '<div class="sec-title">固定信息</div>' +
     fixedInfoHtml(ct, c,
       '<div><div class="k">批次名称</div><div class="v">' + esc(b.name) + '</div></div>' +
+      '<div><div class="k">提交人（销售）</div><div class="v">' + esc(b.sales || '—') + '</div></div>' +
       '<div><div class="k">新建时间</div><div class="v">' + b.createdAt + '</div></div>' +
       '<div><div class="k">当前状态</div><div class="v">' + statusBadge(b.status) + '</div></div>' +
       (b.approver
@@ -964,6 +1009,131 @@ function submitEditProduct(e, id){
   toast('✅ 产品「' + name + '」已更新');
   render();
   return false;
+}
+
+/* ═══════════ 管理员后台：员工管理 ═══════════ */
+function viewStaff(){
+  const directors = staff.filter(s => s.role === 'director');
+  const sales = staff.filter(s => s.role === 'sales');
+  const ops = staff.filter(s => s.role === 'ops');
+  $('main').innerHTML = '<div class="container">' +
+    '<div class="page-head"><div><h2>员工管理</h2><div class="sub">员工自助注册 → 管理员审批并赋予岗位 → 配置汇报关系</div></div><div class="spacer"></div>' +
+    '<button class="btn btn-primary" onclick="modalStaffReg()">＋ 员工申请注册</button></div>' +
+    '<div class="card"><h3>注册申请待审批（' + staffReqs.length + '）</h3><div class="table-wrap"><table>' +
+    '<thead><tr><th>姓名</th><th>账号ID</th><th>申请时间</th><th>赋予岗位</th><th>操作</th></tr></thead><tbody>' +
+    (staffReqs.map(r =>
+      '<tr><td><b>' + esc(r.name) + '</b></td>' +
+      '<td class="mono">' + esc(r.account) + '</td>' +
+      '<td>' + r.time + '</td>' +
+      '<td><select id="rs-' + r.id + '" style="width:130px;padding:6px 8px;font-size:12.5px">' +
+        '<option value="sales">销售专员</option><option value="director">销售总监</option><option value="ops">运营专员</option></select></td>' +
+      '<td><button class="btn btn-sm btn-success" onclick="approveReg(\'' + r.id + '\')">通过</button> <button class="btn btn-sm btn-danger" onclick="rejectReg(\'' + r.id + '\')">驳回</button></td></tr>'
+    ).join('') || emptyRow(5,'暂无待审批的注册申请')) +
+    '</tbody></table></div></div>' +
+    '<div class="card"><h3>销售专员（' + sales.length + '）</h3><div class="table-wrap"><table>' +
+    '<thead><tr><th>姓名</th><th>账号ID</th><th>注册时间</th><th>汇报总监</th><th>操作</th></tr></thead><tbody>' +
+    (sales.map(s => {
+      let bossCell;
+      if (!directors.length) bossCell = '<span class="hint">暂无总监</span>';
+      else bossCell = '<select style="width:150px;padding:6px 8px;font-size:12.5px" onchange="assignBoss(\'' + s.id + '\',this.value)">' +
+        '<option value=""' + (s.bossId ? '' : ' selected') + '>未分配</option>' +
+        directors.map(d => '<option value="' + d.id + '"' + (s.bossId === d.id ? ' selected' : '') + '>' + esc(d.name) + '</option>').join('') + '</select>';
+      return '<tr><td><b>' + esc(s.name) + '</b></td>' +
+        '<td class="mono">' + esc(s.account) + '</td>' +
+        '<td>' + s.createdAt + '</td>' +
+        '<td>' + bossCell + '</td>' +
+        '<td><button class="btn btn-sm btn-primary" onclick="promoteStaff(\'' + s.id + '\')">提升总监</button> <button class="btn btn-sm btn-danger" onclick="delStaff(\'' + s.id + '\')">删除</button></td></tr>';
+    }).join('') || emptyRow(5,'暂无销售专员')) +
+    '</tbody></table></div></div>' +
+    '<div class="card"><h3>销售总监（' + directors.length + '）</h3><div class="table-wrap"><table>' +
+    '<thead><tr><th>姓名</th><th>账号ID</th><th>注册时间</th><th>下属专员</th><th>操作</th></tr></thead><tbody>' +
+    (directors.map(s => {
+      const subs = staff.filter(x => x.role === 'sales' && x.bossId === s.id);
+      return '<tr><td><b>' + esc(s.name) + '</b></td>' +
+        '<td class="mono">' + esc(s.account) + '</td>' +
+        '<td>' + s.createdAt + '</td>' +
+        '<td>' + (subs.length ? subs.map(x => esc(x.name)).join('、') : '<span class="hint">—</span>') + '</td>' +
+        '<td><button class="btn btn-sm" onclick="demoteStaff(\'' + s.id + '\')">降格为专员</button> <button class="btn btn-sm btn-danger" onclick="delStaff(\'' + s.id + '\')">删除</button></td></tr>';
+    }).join('') || emptyRow(5,'暂无销售总监')) +
+    '</tbody></table></div></div>' +
+    '<div class="card"><h3>运营人员（' + ops.length + '）</h3><div class="table-wrap"><table>' +
+    '<thead><tr><th>姓名</th><th>账号</th><th>建立时间</th><th>操作</th></tr></thead><tbody>' +
+    (ops.map(s =>
+      '<tr><td><b>' + esc(s.name) + '</b></td>' +
+      '<td class="mono">' + esc(s.account) + '</td>' +
+      '<td>' + s.createdAt + '</td>' +
+      '<td><button class="btn btn-sm btn-danger" onclick="delStaff(\'' + s.id + '\')">删除</button></td></tr>'
+    ).join('') || emptyRow(4,'暂无运营人员')) +
+    '</tbody></table></div></div></div>';
+}
+function modalStaffReg(){
+  showModal('<div class="modal"><h3>员工申请注册</h3>' +
+    '<div class="hint" style="margin-bottom:14px">模拟员工在注册页自助申请账号：提交后进入待审批，由管理员审批并赋予岗位</div>' +
+    '<form onsubmit="return submitStaffReg(event)">' +
+    '<div class="field"><label>姓名 *</label><input id="rg-name" required placeholder="请输入姓名"></div>' +
+    '<div class="field"><label>账号ID *</label><input id="rg-account" required placeholder="例如：zhaomin"></div>' +
+    '<div class="modal-actions"><button class="btn btn-primary">确认</button><button type="button" class="btn" onclick="closeModal()">取消</button></div>' +
+    '</form></div>');
+}
+function submitStaffReg(e){
+  e.preventDefault();
+  const name = $('rg-name').value.trim(), account = $('rg-account').value.trim();
+  if (!name || !account){ toast('⚠️ 请填写姓名和账号ID'); return false; }
+  staffReqs.unshift({ id:'r' + Date.now(), name, account, time: nowStr(), status:'待审批' });
+  closeModal();
+  toast('✅ 注册申请已提交，等待管理员审批并赋予岗位');
+  render();
+  return false;
+}
+function approveReg(id){
+  const r = staffReqs.find(x => x.id === id);
+  if (!r) return;
+  const newRole = $('rs-' + id).value;
+  const firstDirector = staff.find(s => s.role === 'director');
+  staff.push({ id:'u' + Date.now(), name: r.name, account: r.account, role: newRole, createdAt: todayStr(), bossId: (newRole === 'sales' && firstDirector) ? firstDirector.id : '' });
+  staffReqs = staffReqs.filter(x => x.id !== id);
+  toast('✅ 「' + r.name + '」已审批通过，岗位：' + roleName(newRole));
+  render();
+}
+function rejectReg(id){
+  const r = staffReqs.find(x => x.id === id);
+  staffReqs = staffReqs.filter(x => x.id !== id);
+  toast('已驳回「' + r.name + '」的注册申请');
+  render();
+}
+function assignBoss(id, val){
+  const s = staff.find(x => x.id === id);
+  if (!s) return;
+  s.bossId = val;
+  toast(val ? '✅ 「' + s.name + '」的汇报总监已设为「' + (staff.find(x => x.id === val) || {}).name + '」' : '已清除「' + s.name + '」的汇报总监');
+  render();
+}
+function promoteStaff(id){
+  const s = staff.find(x => x.id === id);
+  if (!s || s.role !== 'sales') return;
+  if (!confirm('确认将「' + s.name + '」提升为销售总监？')) return;
+  s.role = 'director'; s.bossId = '';
+  toast('✅ 「' + s.name + '」已提升为销售总监');
+  render();
+}
+function demoteStaff(id){
+  const s = staff.find(x => x.id === id);
+  if (!s || s.role !== 'director') return;
+  if (!confirm('确认将「' + s.name + '」降格为销售专员？\n其下属专员的汇报关系将被清除。')) return;
+  staff.forEach(x => { if (x.role === 'sales' && x.bossId === id) x.bossId = ''; });
+  s.role = 'sales';
+  const other = staff.find(x => x.role === 'director' && x.id !== id);
+  s.bossId = other ? other.id : '';
+  toast('✅ 「' + s.name + '」已降格为销售专员');
+  render();
+}
+function delStaff(id){
+  const s = staff.find(x => x.id === id);
+  if (!s) return;
+  if (!confirm('确认删除员工「' + s.name + '」（' + roleName(s.role) + '）？')) return;
+  staff = staff.filter(x => x.id !== id);
+  toast('已删除员工「' + s.name + '」');
+  render();
 }
 
 /* ═══════════ 启动 ═══════════ */
