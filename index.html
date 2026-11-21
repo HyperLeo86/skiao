@@ -115,6 +115,9 @@ label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
 /* ── 认款进度 ── */
 .pay-track{height:8px;border-radius:99px;background:var(--bg);overflow:hidden;margin-top:8px}
 .pay-fill{height:100%;border-radius:99px;background:var(--green);transition:width .3s}
+.pay-fill.orange{background:var(--amber)}
+.btn-orange{background:var(--amber);border-color:var(--amber);color:#fff}
+.btn-orange:hover{filter:brightness(1.1);color:#fff}
 
 /* ── 弹窗 ── */
 .mask{position:fixed;inset:0;background:rgba(10,15,25,.5);backdrop-filter:blur(3px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -201,24 +204,36 @@ const SEED_BATCHES = [
   { id:'b1', contractId:'ct1', name:'万人基因组第一批', no:'PC20261112-001', createdAt:'2026-11-12 10:23', status:'待审批',
     items:[ { product:'全基因组测序', samples:500, discount:10 },
             { product:'肿瘤基因检测', samples:200, discount:0 } ],
-    payments:[ { time:'2026-11-13 09:15', amount:200000, note:'首付款' } ] },
+    payments:[ { time:'2026-11-13 09:15', amount:200000, note:'首付款' } ],
+    invoiceTotal:480000,
+    invoices:[ { time:'2026-11-13 10:30', amount:100000, note:'首批开票' } ] },
   { id:'b2', contractId:'ct2', name:'孕妇队列第一批', no:'PC20261115-001', createdAt:'2026-11-15 14:02', status:'待提交',
     items:[ { product:'无创产前检测', samples:300, discount:15 } ],
-    payments:[] },
+    payments:[],
+    invoiceTotal:306000,
+    invoices:[] },
   { id:'b3', contractId:'ct3', name:'病原溯源批次', no:'PC20261116-001', createdAt:'2026-11-16 09:40', status:'已通过',
     items:[ { product:'病原微生物检测', samples:1000, discount:20 } ],
-    payments:[ { time:'2026-11-16 16:30', amount:320000, note:'全款' } ] },
+    payments:[ { time:'2026-11-16 16:30', amount:320000, note:'全款' } ],
+    invoiceTotal:320000,
+    invoices:[ { time:'2026-11-16 17:00', amount:320000, note:'' } ] },
   { id:'b5', contractId:'ct4', name:'肺癌早筛批次', no:'PC20261119-001', createdAt:'2026-11-19 11:05', status:'待提交',
     items:[ { product:'肿瘤基因检测', samples:150, discount:10 } ],
-    payments:[] },
+    payments:[],
+    invoiceTotal:81000,
+    invoices:[] },
   { id:'b4', contractId:'ct5', name:'药物基因组批次', no:'PC20261120-001', createdAt:'2026-11-20 16:12', status:'已驳回',
     items:[ { product:'全基因组测序', samples:200, discount:5 },
             { product:'宏基因组测序', samples:100, discount:0 } ],
-    payments:[ { time:'2026-11-20 17:00', amount:80000, note:'首付款' } ] },
+    payments:[ { time:'2026-11-20 17:00', amount:80000, note:'首付款' } ],
+    invoiceTotal:222000,
+    invoices:[ { time:'2026-11-20 17:30', amount:80000, note:'' } ] },
   { id:'b6', contractId:'ct1', name:'万人基因组第二批', no:'PC20261120-002', createdAt:'2026-11-20 18:30', status:'已通过',
     items:[ { product:'全外显子组测序', samples:300, discount:5 },
             { product:'转录组测序', samples:300, discount:5 } ],
-    payments:[ { time:'2026-11-21 10:00', amount:220000, note:'首付款' } ] },
+    payments:[ { time:'2026-11-21 10:00', amount:220000, note:'首付款' } ],
+    invoiceTotal:270750,
+    invoices:[ { time:'2026-11-21 11:00', amount:150000, note:'首期开票' } ] },
 ];
 
 /* ═══════════ 状态 ═══════════ */
@@ -231,6 +246,7 @@ let q = '', bq = '';
 let expanded = new Set(); // 客户详情里展开的合同
 let draft = null;         // 新建批次草稿 { contractId, name, items }
 let modalBatchId = null;  // 当前打开的批次弹窗 id
+let editDraft = null;     // 批次编辑草稿 { batchId, items }
 
 /* ═══════════ 工具函数 ═══════════ */
 const $ = id => document.getElementById(id);
@@ -485,7 +501,7 @@ function modalNewBatch(contractId){
     '<div class="sec-title">分析项目（' + draft.items.length + ' 项，逐条累计）</div>' +
     addFormHtml('addDraftItem()') +
     itemTableHtml(draft.items, true, 'removeDraftItem') +
-    '<div class="modal-actions"><button class="btn" onclick="draft=null;closeModal()">取消</button><button class="btn btn-primary" onclick="confirmNewBatch()">确认</button></div>' +
+    '<div class="modal-actions"><button class="btn btn-primary" onclick="confirmNewBatch()">确认</button><button class="btn" onclick="draft=null;closeModal()">取消</button></div>' +
     '</div>');
 }
 function addDraftItem(){
@@ -502,7 +518,8 @@ function confirmNewBatch(){
   const name = draft.name.trim();
   if (!name){ toast('⚠️ 请输入分析批名称'); return false; }
   const id = 'b' + Date.now();
-  batches.push({ id, contractId: draft.contractId, name, no: nextBatchNo(), createdAt: nowStr(), status:'待提交', items: draft.items.slice(), payments:[] });
+  const total = draft.items.reduce((a,i) => a + itemCurrent(i), 0);
+  batches.push({ id, contractId: draft.contractId, name, no: nextBatchNo(), createdAt: nowStr(), status:'待提交', items: draft.items.slice(), payments:[], invoiceTotal: total, invoices:[] });
   draft = null; closeModal();
   toast('✅ 批次「' + name + '」已保存，可在列表中点击绿色「提交审批」');
   render();
@@ -516,43 +533,69 @@ function modalBatch(id){
   const ct = contractOfBatch(b), c = custOf(ct);
   const t = batchTotals(b);
   const editing = b.status === '待提交';
+  if (editing && (!editDraft || editDraft.batchId !== id)) editDraft = { batchId: id, items: JSON.parse(JSON.stringify(b.items)) };
+  const items = editing ? editDraft.items : b.items;
   const pct = t.total ? Math.round(t.paid / t.total * 100) : 0;
+  const invTotal = b.invoiceTotal || t.total;
+  const invUsed = (b.invoices || []).reduce((a,i) => a + i.amount, 0);
+  const ipct = invTotal ? Math.round(invUsed / invTotal * 100) : 0;
   showModal('<div class="modal" style="max-width:640px"><h3>批次详情 <span class="mono" style="font-weight:400;font-size:13px">' + b.no + '</span></h3>' +
     '<div class="sec-title">固定信息</div>' +
     fixedInfoHtml(ct, c,
       '<div><div class="k">批次名称</div><div class="v">' + esc(b.name) + '</div></div>' +
       '<div><div class="k">新建时间</div><div class="v">' + b.createdAt + '</div></div>' +
       '<div><div class="k">当前状态</div><div class="v">' + statusBadge(b.status) + '</div></div>') +
-    '<div class="sec-title">分析项目（' + b.items.length + ' 项）</div>' +
-    (editing ? addFormHtml('addBatchItem(\'' + b.id + '\')') : '') +
-    itemTableHtml(b.items, editing, 'removeBatchItem') +
-    '<div class="sec-title">认款情况</div>' +
-    '<div class="k" style="font-size:12.5px;color:var(--muted)">已认款 ' + money(t.paid) + ' / 总金额 ' + money(t.total) + '（' + pct + '%）</div>' +
+    '<div class="sec-title">分析项目（' + items.length + ' 项）' + (editing ? ' · 编辑中' : '') + '</div>' +
+    (editing ? addFormHtml('addBatchItem()') : '') +
+    itemTableHtml(items, editing, 'removeBatchItem') +
+    '<div class="sec-title">认款进度</div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center"><span class="hint">已认款 <b>' + money(t.paid) + '</b> / 总金额 ' + money(t.total) + '（' + pct + '%）</span>' +
+    '<button class="btn btn-sm btn-success" onclick="modalPayment(\'' + b.id + '\')">申请</button></div>' +
     '<div class="pay-track"><div class="pay-fill" style="width:' + pct + '%"></div></div>' +
-    '<div style="margin-top:10px">' +
-      '<button class="btn btn-sm btn-success" onclick="modalPayment(\'' + b.id + '\')">💰 认款</button> ' +
-      (editing ? '<button class="btn btn-sm btn-success" onclick="modalSubmitApproval(\'' + b.id + '\')">提交审批</button>' : '') +
-    '</div>' +
     ((b.payments && b.payments.length)
       ? '<div class="table-wrap" style="margin-top:10px"><table><thead><tr><th>认款时间</th><th>金额</th><th>备注</th></tr></thead><tbody>' +
         b.payments.map(p => '<tr><td>' + p.time + '</td><td><b style="color:var(--green)">+' + money(p.amount) + '</b></td><td>' + esc(p.note || '—') + '</td></tr>').join('') +
         '</tbody></table></div>'
       : '<div class="hint" style="margin-top:8px">暂无认款记录</div>') +
-    '<div class="modal-actions"><button class="btn" onclick="closeModal()">关闭</button></div>' +
+    '<div class="sec-title">发票额度</div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center"><span class="hint">当前额度 <b>' + money(invUsed) + '</b> / 发票总额度 ' + money(invTotal) + '（' + ipct + '%）</span>' +
+    '<button class="btn btn-sm btn-orange" onclick="modalInvoice(\'' + b.id + '\')">申请</button></div>' +
+    '<div class="pay-track"><div class="pay-fill orange" style="width:' + ipct + '%"></div></div>' +
+    ((b.invoices && b.invoices.length)
+      ? '<div class="table-wrap" style="margin-top:10px"><table><thead><tr><th>开票时间</th><th>金额</th><th>备注</th></tr></thead><tbody>' +
+        b.invoices.map(p => '<tr><td>' + p.time + '</td><td><b style="color:var(--amber)">+' + money(p.amount) + '</b></td><td>' + esc(p.note || '—') + '</td></tr>').join('') +
+        '</tbody></table></div>'
+      : '<div class="hint" style="margin-top:8px">暂无开票记录</div>') +
+    (editing
+      ? '<div class="modal-actions"><button class="btn btn-primary" onclick="confirmBatchEdit()">确认</button><button class="btn" onclick="cancelBatchEdit()">取消</button></div>'
+      : '<div class="modal-actions"><button class="btn" onclick="closeModal()">关闭</button></div>') +
     '</div>');
 }
-function addBatchItem(id){
-  const b = batches.find(x => x.id === id);
+function addBatchItem(){
   const it = readAddForm();
   if (!it) return;
-  b.items.push(it);
-  modalBatch(id);
+  editDraft.items.push(it);
+  modalBatch(modalBatchId);
 }
 function removeBatchItem(i){
-  const b = batches.find(x => x.id === modalBatchId);
-  if (!b) return;
-  b.items.splice(i, 1);
+  editDraft.items.splice(i, 1);
   modalBatch(modalBatchId);
+}
+function confirmBatchEdit(){
+  const b = batches.find(x => x.id === modalBatchId);
+  if (b && editDraft) b.items = editDraft.items.slice();
+  editDraft = null;
+  closeModal();
+  toast('✅ 批次修改已保存');
+  render();
+}
+function cancelBatchEdit(){
+  editDraft = null;
+  closeModal();
+}
+function backToBatch(){
+  if (modalBatchId) modalBatch(modalBatchId); else closeModal();
+  render();
 }
 
 /* 提交审批：先确认全部信息，再提交 */
@@ -572,7 +615,7 @@ function modalSubmitApproval(id){
     itemTableHtml(b.items, false, '') +
     '<div class="sec-title">认款情况</div>' +
     '<div class="k" style="font-size:12.5px;color:var(--muted)">已认款 ' + money(t.paid) + ' / ' + money(t.total) + '</div>' +
-    '<div class="modal-actions"><button class="btn" onclick="closeModal()">取消</button><button class="btn btn-success" onclick="submitApproval(\'' + b.id + '\')">确认提交审批</button></div>' +
+    '<div class="modal-actions"><button class="btn btn-success" onclick="submitApproval(\'' + b.id + '\')">确认提交审批</button><button class="btn" onclick="closeModal()">取消</button></div>' +
     '</div>');
 }
 function submitApproval(id){
@@ -595,7 +638,7 @@ function modalNewCustomer(){
     '<div class="field"><label>单位</label><input id="nc-org" placeholder="请输入单位名称"></div>' +
     '<div class="field"><label>收件地址</label><input id="nc-addr" placeholder="请输入收件地址"></div>' +
     '<div class="field"><label>发票信息</label><textarea id="nc-invoice" rows="2" placeholder="发票抬头 / 类型 / 税号等"></textarea></div>' +
-    '<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary">创建</button></div>' +
+    '<div class="modal-actions"><button class="btn btn-primary">创建</button><button type="button" class="btn" onclick="closeModal()">取消</button></div>' +
     '</form></div>');
 }
 function submitNewCustomer(e){
@@ -623,7 +666,7 @@ function modalNewContract(customerId){
       '<div class="field"><label>开始时间 *</label><input id="ct-start" type="date" required value="' + todayStr() + '"></div>' +
     '</div>' +
     '<div class="field"><label>总期限（年）*</label><input id="ct-term" type="number" min="1" step="1" value="3" required></div>' +
-    '<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary">创建</button></div>' +
+    '<div class="modal-actions"><button class="btn btn-primary">创建</button><button type="button" class="btn" onclick="closeModal()">取消</button></div>' +
     '</form></div>');
 }
 function submitNewContract(e, customerId){
@@ -642,12 +685,12 @@ function modalPayment(batchId){
   const b = batches.find(x => x.id === batchId);
   const t = batchTotals(b);
   const left = t.total - t.paid;
-  showModal('<div class="modal"><h3>认款录入</h3>' +
+  showModal('<div class="modal"><h3>申请认款</h3>' +
     '<div class="hint" style="margin-bottom:14px">批次「' + esc(b.name) + '」· 总金额 ' + money(t.total) + ' · 已认款 ' + money(t.paid) + ' · 待认款 ' + money(left) + '</div>' +
     '<form onsubmit="return submitPayment(event,\'' + batchId + '\')">' +
     '<div class="field"><label>认款金额（元）*</label><input id="pm-amount" type="number" min="0.01" step="0.01" required placeholder="例如：100000"></div>' +
     '<div class="field"><label>备注</label><input id="pm-note" placeholder="例如：首付款 / 尾款"></div>' +
-    '<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">取消</button><button class="btn btn-success">确认认款</button></div>' +
+    '<div class="modal-actions"><button class="btn btn-success">确认</button><button type="button" class="btn" onclick="backToBatch()">取消</button></div>' +
     '</form></div>');
 }
 function submitPayment(e, batchId){
@@ -658,9 +701,34 @@ function submitPayment(e, batchId){
   const note = $('pm-note').value.trim();
   b.payments = b.payments || [];
   b.payments.push({ time: nowStr(), amount, note: note || '' });
-  closeModal();
   toast('💰 已认款 ' + money(amount) + '（累计 ' + money(batchTotals(b).paid) + '）');
-  render();
+  backToBatch();
+  return false;
+}
+function modalInvoice(batchId){
+  const b = batches.find(x => x.id === batchId);
+  const t = batchTotals(b);
+  const invTotal = b.invoiceTotal || t.total;
+  const invUsed = (b.invoices || []).reduce((a,i) => a + i.amount, 0);
+  const left = invTotal - invUsed;
+  showModal('<div class="modal"><h3>申请开票</h3>' +
+    '<div class="hint" style="margin-bottom:14px">批次「' + esc(b.name) + '」· 发票总额度 ' + money(invTotal) + ' · 当前额度 ' + money(invUsed) + ' · 剩余额度 ' + money(left) + '</div>' +
+    '<form onsubmit="return submitInvoice(event,\'' + batchId + '\')">' +
+    '<div class="field"><label>开票金额（元）*</label><input id="iv-amount" type="number" min="0.01" step="0.01" required placeholder="例如：100000"></div>' +
+    '<div class="field"><label>备注</label><input id="iv-note" placeholder="例如：首批开票"></div>' +
+    '<div class="modal-actions"><button class="btn btn-orange">确认</button><button type="button" class="btn" onclick="backToBatch()">取消</button></div>' +
+    '</form></div>');
+}
+function submitInvoice(e, batchId){
+  e.preventDefault();
+  const b = batches.find(x => x.id === batchId);
+  const amount = parseFloat($('iv-amount').value);
+  if (!amount || amount <= 0){ toast('⚠️ 请输入开票金额'); return false; }
+  const note = $('iv-note').value.trim();
+  b.invoices = b.invoices || [];
+  b.invoices.push({ time: nowStr(), amount, note: note || '' });
+  toast('🧾 已申请开票 ' + money(amount) + '（当前额度累计 ' + money(b.invoices.reduce((a,i) => a + i.amount, 0)) + '）');
+  backToBatch();
   return false;
 }
 
