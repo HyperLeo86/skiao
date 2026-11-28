@@ -1,61 +1,17 @@
 import {
   types, statuses, objects, sources, strategies, dependencyTypes, field, option, preset, numberConfig,
   newConfig, availableSources, availableStrategies, dependencies, definitionIssues, previewIssues,
-  parentOptions, projectOptions, projectDefault, initialPreview, submission, definition,
+  initialPreview, submission, definition,
 } from "./parameter-model.js";
+import {icon, esc, $, btn, statusBadge, checked, pairs, opt, input, select, labeled, block, checklist, colorJson, download, downloadCsv, toggleValue} from "./workbench-ui.js";
+import {parameterForm, updateParameterTrial} from "./parameter-form.js";
+import {parameterLibrary} from "./workbench-storage.js";
 
-const icons = {
-  layers: '<path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/>',
-  library: '<rect x="4" y="4" width="15" height="16" rx="2"/><path d="M8 4v16m3-11h5m-5 4h5"/>',
-  search: '<circle cx="10.8" cy="10.8" r="5.8"/><path d="m15 15 4 4"/>',
-  plus: '<path d="M12 5v14M5 12h14"/>',
-  download: '<path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4"/>',
-  chevron: '<path d="m9 6 6 6-6 6"/>',
-  number: '<path d="m10 4-3 16m10-16-3 16M4 9h16M3 15h16"/>',
-  choice: '<path d="M10 6h10m-10 6h10m-10 6h10M4 6h1m-1 6h1m-1 6h1"/>',
-  project: '<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Zm0 9 8-4.5M12 12 4 7.5M12 12v9"/>',
-  text: '<path d="M4 5h16m-8 0v14m-4 0h8M4 5v3m16-3v3"/>',
-  edit: '<path d="M13 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-7m-9 3 1-4 7-7 3 3-7 7-4 1Z"/>',
-  eye: '<path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/>',
-  form: '<rect x="4" y="6" width="16" height="12" rx="2"/><path d="M8 10v4m3-2h5"/>',
-  copy: '<rect x="8" y="8" width="11" height="12" rx="2"/><path d="M15 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
-  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/>',
-  check: '<path d="m5 12 4 4L19 6"/>',
-  clock: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
-  trash: '<path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13m-7 4v5m4-5v5"/>',
-};
-const icon = (name, size = 17) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name]}</svg>`;
-const esc = value => String(value ?? "").replace(/[&<>"']/g, character => ({
-  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-}[character]));
-const $ = id => document.getElementById(id);
-const storageKey = "skyao-static-parameter-library-v1";
 const state = {cards: [], saved: null, card: null, preview: null, tab: "payload", busy: false};
 let toastTimer;
 const key = card => `${card.id}@${card.version}`;
 const dirty = () => state.card && JSON.stringify(state.card) !== JSON.stringify(state.saved);
 const locked = () => state.saved?.status === "confirmed";
-const btn = (action, title, extra = "", glyph = "") => `<button type="button" class="btn ${extra}" data-action="${action}">${glyph ? icon(glyph, 16) : ""}${title}</button>`;
-const statusBadge = status => `<span class="status ${status}"><i></i>${statuses[status]}</span>`;
-const selected = (value, expected) => value === expected ? " selected" : "";
-const checked = value => value ? " checked" : "";
-const pairs = entries => Object.entries(entries);
-const opt = (items, value) => items.map(([code, label]) =>
-  `<option value="${esc(code)}"${selected(String(value ?? ""), String(code))}>${esc(label)}</option>`).join("");
-
-function input(path, value, {type = "text", label, placeholder = "", code = false} = {}) {
-  return `<input data-bind="${path}" ${label ? `aria-label="${esc(label)}"` : ""} type="${type}" value="${esc(value)}"
-    placeholder="${esc(placeholder)}" ${type === "number" ? 'step="any"' : 'autocomplete="off"'} ${code ? 'class="mono" spellcheck="false"' : ""}>`;
-}
-function select(path, value, options, label = "") {
-  return `<select data-bind="${path}" ${label ? `aria-label="${esc(label)}"` : ""}>${opt(options, value)}</select>`;
-}
-function labeled(label, control, required = false) {
-  return `<label class="field"><span>${label}${required ? ' <em>*</em>' : ''}</span>${control}</label>`;
-}
-function block(title, body, info = "") {
-  return `<section class="definition-block"><div class="block-title"><h3>${title}</h3>${info ? `<span>${info}</span>` : ""}</div>${body}</section>`;
-}
 const modeOptions = [["single", "单选"], ["multiple", "多选"]];
 
 function filteredCards() {
@@ -176,56 +132,13 @@ function renderEditor() {
   </fieldset>`;
 }
 
-function checklist(options, values, target, empty) {
-  return options.length ? `<div class="checklist">${options.map(([code, name]) =>
-    `<label class="checkbox"><input type="checkbox" data-${target} value="${esc(code)}"${checked(values?.includes(code))}> ${esc(name)}</label>`).join("")}</div>` :
-    `<span class="hint">${empty}</span>`;
-}
-
 function mockForm() {
-  const {card, preview} = state;
-  const c = card.config;
-  const title = `<div class="mock-label"><strong>${esc(card.name.trim() || "未命名参数")}</strong><span>${types[card.type]}</span></div>`;
-  const mockInput = (name, value, index) => `<input type="number" step="any" data-preview="${index}" aria-label="试填 ${esc(name)}" value="${esc(value)}" placeholder="请输入">`;
-  const mockSelect = (options, value, label) => `<select data-preview="single" aria-label="${esc(label)}">${opt([["", "请选择"], ...options], value)}</select>`;
-  let control;
-  if (card.type === "number") {
-    control = `<div class="field-row">${c.fields.map((item, index) => {
-      const name = item.name || `数值 ${index + 1}`;
-      const entry = mockInput(name, preview.value[index], index);
-      return c.mode === "single" ? entry : labeled(esc(name), entry);
-    }).join("")}</div>`;
-  } else if (card.type === "choice") {
-    const options = c.mode === "boolean" ? [["true", "是"], ["false", "否"]] :
-      c.options.filter(item => item.code).map(item => [item.code, item.name || item.code]);
-    control = c.mode === "multiple" ? checklist(options, preview.value, "preview-choice", "添加选项后可试填。") :
-      mockSelect(options, preview.value, "试填固定选项");
-  } else if (card.type === "project") {
-    const options = projectOptions(c, preview.parent);
-    const parent = c.source === "project" ? "" : labeled(`${objects[dependencyTypes[c.source]]}（示例）`,
-      `<select data-preview="parent">${opt([["", "请选择"], ...parentOptions(c)], preview.parent)}</select>`);
-    control = `<span class="demo-source">${icon("info", 14)} 使用示例项目数据</span>${parent}${c.mode === "multiple" ?
-      checklist(options, preview.value, "preview-choice", "当前来源无可选对象。") : mockSelect(options, preview.value, "试填项目对象")}`;
-  } else {
-    control = c.mode === "multiple" ? `<textarea rows="3" aria-label="试填文本" data-preview="text" placeholder="请输入文字">${esc(preview.value)}</textarea>` :
-      `<input aria-label="试填文本" data-preview="text" value="${esc(preview.value)}" placeholder="请输入文字">`;
-  }
-  $("form-preview").innerHTML = title + control + (card.description.trim() ? `<p class="mock-help">${esc(card.description)}</p>` : "");
+  $("form-preview").innerHTML = parameterForm(state.card, state.preview);
 }
 
 function jsonText() {
   return JSON.stringify(state.tab === "payload" ? submission(state.card, state.preview) : definition(state.card), null, 2);
 }
-function colorJson(value) {
-  const tokens = value.split(/("(?:\\.|[^"\\])*")(\s*:)?|(-?\b\d+(?:\.\d+)?(?:e[+-]?\d+)?\b|\btrue\b|\bfalse\b|\bnull\b)/gi);
-  return tokens.map((part, index) => !part ? "" : index % 4 === 1 ? `<span class="${valueForKey(index) ? "json-key" : "json-string"}">${esc(part)}</span>` :
-      index % 4 === 3 ? `<span class="json-literal">${esc(part)}</span>` : esc(part)).join("");
-
-  function valueForKey(index) {
-    return tokens[index + 1]?.includes(":");
-  }
-}
-
 function renderResults() {
   $("json-preview").innerHTML = colorJson(jsonText());
   const issues = definitionIssues(state.card, state.cards);
@@ -354,9 +267,6 @@ function edit(input, structural) {
   if (structural) $("definition").querySelector(`[data-bind="${path}"]`)?.focus();
 }
 
-function toggleValue(values, value, on) {
-  return on ? [...new Set([...(values || []), value])] : (values || []).filter(item => item !== value);
-}
 $("definition").addEventListener("input", event => {
   const input = event.target;
   if (input.dataset.bind && input.tagName !== "SELECT" && input.type !== "checkbox") edit(input, false);
@@ -376,20 +286,9 @@ $("definition").addEventListener("change", event => {
 });
 
 function previewInput(input) {
-  const {preview, card} = state;
-  if (input.hasAttribute("data-preview-choice")) {
-    preview.value = toggleValue(preview.value, input.value, input.checked);
-  } else if (input.dataset.preview === "parent") {
-    preview.parent = input.value;
-    preview.value = projectDefault(card.config, preview.parent);
+  if (updateParameterTrial(input, state.card, state.preview)) {
     mockForm();
     $("form-preview").querySelector('[data-preview="parent"]')?.focus();
-  } else if (input.dataset.preview === "single") {
-    preview.value = input.value === "" ? null : card.config.mode === "boolean" ? input.value === "true" : input.value;
-  } else if (input.dataset.preview === "text") {
-    preview.value = input.value;
-  } else if (input.dataset.preview !== undefined) {
-    preview.value[Number(input.dataset.preview)] = Number.isFinite(input.valueAsNumber) ? input.valueAsNumber : null;
   }
   renderResults();
 }
@@ -453,22 +352,8 @@ function notify(message, error = false) {
   toastTimer = setTimeout(() => { $("toast").hidden = true; }, error ? 6500 : 3300);
 }
 
-let seeds;
-
-async function readCards() {
-  if (!seeds) {
-    const response = await fetch("./parameters.json");
-    if (!response.ok) throw new Error("无法加载示例参数。");
-    seeds = await response.json();
-  }
-  const saved = localStorage.getItem(storageKey);
-  return saved ? JSON.parse(saved) : structuredClone(seeds);
-}
-
 async function writeCard(action, card) {
-  await readCards();
-  const persist = () => {
-    const cards = JSON.parse(localStorage.getItem(storageKey)) ?? structuredClone(seeds);
+  return parameterLibrary.update(cards => {
     const index = cards.findIndex(item => key(item) === key(card));
     const current = cards[index];
     if (card.id && (!current || current.revision !== card.revision)) {
@@ -494,15 +379,13 @@ async function writeCard(action, card) {
     };
     if (creatingVersion || index < 0) cards.unshift(result);
     else cards[index] = result;
-    localStorage.setItem(storageKey, JSON.stringify(cards));
     return {result, cards};
-  };
-  return navigator.locks ? navigator.locks.request(storageKey, persist) : persist();
+  });
 }
 
 async function load() {
   try {
-    const cards = await readCards();
+    const cards = await parameterLibrary.read();
     state.cards = cards;
     $("load-error").hidden = true;
     $("new-card").disabled = false;
@@ -573,15 +456,6 @@ $("review-form").addEventListener("submit", event => {
   save("confirmed");
 });
 
-function download(filename, text, type) {
-  const url = URL.createObjectURL(new Blob([text], {type}));
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
 function exportMarkdown(card) {
   const c = card.config;
   const missing = "未设置";
@@ -625,14 +499,9 @@ function exportMarkdown(card) {
 function exportLibrary() {
   const cards = filteredCards();
   if (!cards.length) return notify("当前筛选范围内没有可导出的参数。", true);
-  const csv = value => {
-    let text = String(value ?? "");
-    if (/^[\t\r\n]|^\s*[=+\-@]/.test(text)) text = "'" + text;
-    return '"' + text.replace(/"/g, '""') + '"';
-  };
   const rows = [["参数名称", "参数代码", "填写类型", "状态", "版本", "修改时间", "参数 ID", "参数说明"],
     ...cards.map(card => [card.name, card.code, types[card.type], statuses[card.status], card.version, card.updated_at, card.id, card.description])];
-  download("SkyAO-参数总表.csv", "\uFEFF" + rows.map(row => row.map(csv).join(",")).join("\r\n"), "text/csv;charset=utf-8");
+  downloadCsv("SkyAO-参数总表.csv", rows);
   notify(`已导出当前筛选的 ${cards.length} 张参数卡。`);
 }
 

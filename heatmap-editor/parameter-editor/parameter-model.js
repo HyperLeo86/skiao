@@ -164,10 +164,10 @@ export function projectDefault(config, parent) {
   return config.mode === "multiple" ? [] : null;
 }
 
-export function initialPreview(card, example = false) {
+export function initialPreview(card, example = false, {showRangeExample = true} = {}) {
   const config = card.config;
   if (card.type === "number") {
-    const demoRange = card.id === "sample-gene_count_range" && config.check === "min_lte_max";
+    const demoRange = showRangeExample && card.id === "sample-gene_count_range" && config.check === "min_lte_max";
     const fields = config.fields;
     const values = fields.map((item, index) => {
       if (item.default !== null) return item.default;
