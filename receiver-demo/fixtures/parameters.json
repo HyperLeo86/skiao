@@ -1,0 +1,343 @@
+[
+  {
+    "id": "sample-gene_count_range",
+    "name": "基因数范围",
+    "code": "gene_count_range",
+    "type": "number",
+    "config": {
+      "mode": "multiple",
+      "fields": [
+        {
+          "name": "下界",
+          "code": "min",
+          "number_type": "integer",
+          "minimum": 0,
+          "maximum": null,
+          "default": null
+        },
+        {
+          "name": "上界",
+          "code": "max",
+          "number_type": "integer",
+          "minimum": 0,
+          "maximum": null,
+          "default": null
+        }
+      ],
+      "check": "min_lte_max",
+      "percent_scale": null,
+      "tolerance": null
+    },
+    "description": "限定本次分析纳入的基因数量范围。单位为个。",
+    "version": 1,
+    "revision": 1,
+    "status": "pending",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  },
+  {
+    "id": "sample-sort_direction",
+    "name": "排序方向",
+    "code": "sort_direction",
+    "type": "choice",
+    "config": {
+      "mode": "single",
+      "options": [
+        {
+          "name": "从小到大",
+          "code": "asc"
+        },
+        {
+          "name": "从大到小",
+          "code": "desc"
+        }
+      ],
+      "default": "asc"
+    },
+    "description": "指定结果表的排序方向。",
+    "version": 1,
+    "revision": 1,
+    "status": "draft",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  },
+  {
+    "id": "sample-grouping_scheme_id",
+    "name": "分组方案",
+    "code": "grouping_scheme_id",
+    "type": "project",
+    "config": {
+      "object": "grouping_scheme",
+      "mode": "single",
+      "source": "project",
+      "dependency": "",
+      "default": "project_default"
+    },
+    "description": "选择当前项目中已有的分组方案。",
+    "version": 1,
+    "revision": 1,
+    "status": "draft",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  },
+  {
+    "id": "sample-group_ids",
+    "name": "对应分组",
+    "code": "group_ids",
+    "type": "project",
+    "config": {
+      "object": "group",
+      "mode": "multiple",
+      "source": "scheme",
+      "dependency": "grouping_scheme_id",
+      "default": "none"
+    },
+    "description": "选择所选分组方案下参与分析的分组。",
+    "version": 1,
+    "revision": 1,
+    "status": "draft",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  },
+  {
+    "id": "sample-p_value_cutoff",
+    "name": "P 值阈值",
+    "code": "p_value_cutoff",
+    "type": "number",
+    "config": {
+      "mode": "single",
+      "fields": [
+        {
+          "name": "",
+          "code": "",
+          "number_type": "decimal",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.05
+        }
+      ],
+      "check": null,
+      "percent_scale": null,
+      "tolerance": null
+    },
+    "description": "限定显著性检验的 P 值上限。",
+    "version": 1,
+    "revision": 1,
+    "status": "draft",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  },
+  {
+    "id": "sample-databases",
+    "name": "富集数据库",
+    "code": "databases",
+    "type": "choice",
+    "config": {
+      "mode": "multiple",
+      "options": [
+        {
+          "name": "GO",
+          "code": "go"
+        },
+        {
+          "name": "KEGG",
+          "code": "kegg"
+        }
+      ],
+      "default": [
+        "go"
+      ]
+    },
+    "description": "选择用于富集分析的数据库。",
+    "version": 1,
+    "revision": 1,
+    "status": "draft",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  },
+  {
+    "id": "sample-remark",
+    "name": "分析备注",
+    "code": "remark",
+    "type": "text",
+    "config": {
+      "mode": "multiple",
+      "allow_blank": true,
+      "max_length": 200,
+      "default": null
+    },
+    "description": "记录本次分析需要补充说明的内容。",
+    "version": 1,
+    "revision": 1,
+    "status": "draft",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  },
+  {
+    "id": "sample-comparison_ids",
+    "name": "比较对",
+    "code": "comparison_ids",
+    "type": "project",
+    "config": {
+      "object": "comparison",
+      "mode": "multiple",
+      "source": "project",
+      "dependency": "",
+      "default": "none"
+    },
+    "description": "选择当前项目中已有的比较对。",
+    "version": 1,
+    "revision": 1,
+    "status": "draft",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  },
+  {
+    "id": "sample-gene_set_ids",
+    "name": "基因集",
+    "code": "gene_set_ids",
+    "type": "project",
+    "config": {
+      "object": "gene_set",
+      "mode": "multiple",
+      "source": "project",
+      "dependency": "",
+      "default": "none"
+    },
+    "description": "选择用于分析的基因集。",
+    "version": 1,
+    "revision": 1,
+    "status": "draft",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  },
+  {
+    "id": "sample-task_id",
+    "name": "分析任务",
+    "code": "task_id",
+    "type": "project",
+    "config": {
+      "object": "task",
+      "mode": "single",
+      "source": "project",
+      "dependency": "",
+      "default": "none"
+    },
+    "description": "选择当前项目中已有的分析任务。",
+    "version": 1,
+    "revision": 1,
+    "status": "draft",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  },
+  {
+    "id": "sample-task_name",
+    "name": "子任务名称",
+    "code": "task_name",
+    "type": "text",
+    "config": {
+      "mode": "single",
+      "allow_blank": false,
+      "max_length": 60,
+      "default": null
+    },
+    "description": "为即将创建的子任务命名。",
+    "version": 1,
+    "revision": 1,
+    "status": "draft",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  },
+  {
+    "id": "sample-adjust_method",
+    "name": "校正方法",
+    "code": "adjust_method",
+    "type": "choice",
+    "config": {
+      "mode": "single",
+      "options": [
+        {
+          "name": "Benjamini–Hochberg",
+          "code": "bh"
+        },
+        {
+          "name": "Bonferroni",
+          "code": "bonferroni"
+        }
+      ],
+      "default": null
+    },
+    "description": "选择多重检验中的 P 值校正方法。",
+    "version": 1,
+    "revision": 1,
+    "status": "draft",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  },
+  {
+    "id": "sample-enable_clustering",
+    "name": "启用聚类",
+    "code": "enable_clustering",
+    "type": "choice",
+    "config": {
+      "mode": "boolean",
+      "options": [],
+      "default": true
+    },
+    "description": "控制结果绘图是否执行聚类。",
+    "version": 1,
+    "revision": 1,
+    "status": "draft",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  },
+  {
+    "id": "sample-max_items",
+    "name": "最大展示条目数",
+    "code": "max_items",
+    "type": "number",
+    "config": {
+      "mode": "single",
+      "fields": [
+        {
+          "name": "",
+          "code": "",
+          "number_type": "integer",
+          "minimum": 1,
+          "maximum": null,
+          "default": 20
+        }
+      ],
+      "check": null,
+      "percent_scale": null,
+      "tolerance": null
+    },
+    "description": "限定图表最多展示的条目数量。",
+    "version": 1,
+    "revision": 1,
+    "status": "draft",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  },
+  {
+    "id": "sample-category_proportions",
+    "name": "类别占比",
+    "code": "category_proportions",
+    "type": "number",
+    "config": {
+      "mode": "multiple",
+      "fields": [
+        {
+          "name": "类别 A 占比",
+          "code": "a_percent",
+          "number_type": "decimal",
+          "minimum": 0,
+          "maximum": 100,
+          "default": null
+        },
+        {
+          "name": "类别 B 占比",
+          "code": "b_percent",
+          "number_type": "decimal",
+          "minimum": 0,
+          "maximum": 100,
+          "default": null
+        }
+      ],
+      "check": "sum_to_percent",
+      "percent_scale": "100",
+      "tolerance": 0.01
+    },
+    "description": "指定两个类别在总体中的占比，传值尺度为 0–100。",
+    "version": 1,
+    "revision": 1,
+    "status": "draft",
+    "updated_at": "2026-11-28T02:00:00+00:00"
+  }
+]

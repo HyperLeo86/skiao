@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>斯凯奥 · 接收器测试台</title>
+  <link rel="stylesheet" href="/web/style.css">
+  <link rel="stylesheet" href="/web/console.css">
+  <script type="module" src="/web/console.js"></script>
+</head>
+<body>
+  <header class="console-top">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">S</span> 斯凯奥 <span class="brand-en">SkyAO</span></div>
+    <nav aria-label="工作区">
+      <a href="/demo/transfer">文件投送追踪</a>
+      <a aria-current="page" href="/demo">接收测试</a>
+      <a href="/demo/parameters">参数编辑器</a>
+      <a id="result-link" hidden>查看结果</a>
+      <a href="/demo/rehearsal">结果投送演练台</a>
+    </nav>
+  </header>
+  <main class="console">
+    <div class="intro">
+      <div>
+        <h1>接收器测试台</h1>
+        <p>选择一个测试包，查看它包含的文件，再发送给本机接收器。</p>
+      </div>
+      <button id="suite" type="button" disabled>运行整套验收</button>
+    </div>
+
+    <section class="connection" aria-label="接收器状态">
+      <div>
+        <span class="indicator" id="indicator" aria-hidden="true"></span>
+        <span id="connection" role="status">正在连接接收器…</span>
+      </div>
+      <div class="stored">
+        <span><strong id="nodes">—</strong> 个节点</span>
+        <span><strong id="units">—</strong> 个当前结果</span>
+        <span><strong id="versions">—</strong> 个版本</span>
+      </div>
+    </section>
+
+    <div class="console-grid">
+      <section class="cases panel" aria-labelledby="case-heading">
+        <div class="panel-head"><h2 id="case-heading">选择测试包</h2></div>
+        <div id="case-list"></div>
+        <button id="custom" type="button" disabled>上传自己的文件</button>
+      </section>
+
+      <section class="panel payload" aria-labelledby="payload-title">
+        <header class="panel-head">
+          <div>
+            <div id="payload-id" class="mono subtle"></div>
+            <h2 id="payload-title">投送内容</h2>
+            <p id="payload-description" class="subtle"></p>
+          </div>
+          <span id="expected" class="outcome" hidden></span>
+        </header>
+
+        <div id="custom-input" class="custom-input" hidden>
+          <label>Manifest JSON <input id="manifest-input" type="file" accept=".json,application/json"></label>
+          <label>数据文件 <input id="files-input" type="file" multiple></label>
+          <p class="subtle">选择清单引用的文件。接收端会检查文件名、大小、摘要与 CSV 内容。</p>
+        </div>
+
+        <div class="request-bar">
+          <span class="method">POST</span>
+          <code>/api/v1/deliveries</code>
+          <code class="subtle">multipart/form-data</code>
+        </div>
+        <div id="manifest-meta" class="manifest-meta"></div>
+        <div id="server-receipt" class="subtle" hidden></div>
+        <div class="file-wrap">
+          <table class="file-table">
+            <thead><tr><th scope="col">请求字段</th><th scope="col">文件</th><th scope="col">字节</th><th scope="col">SHA-256</th></tr></thead>
+            <tbody id="files"></tbody>
+          </table>
+        </div>
+        <details id="manifest-details" hidden>
+          <summary>查看原始 Manifest</summary>
+          <pre id="manifest"></pre>
+        </details>
+        <div class="send-row">
+          <button id="send" class="primary" type="button" disabled>发送此包</button>
+          <button id="replay" type="button" disabled>重发此包</button>
+          <span id="send-note" class="subtle" role="status"></span>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel activity" aria-labelledby="activity-heading">
+      <header class="panel-head"><h2 id="activity-heading">实际请求与回执</h2></header>
+      <p id="empty" class="subtle inset">发送测试包后，这里会显示 HTTP 状态、验收结果和接收器返回的 JSON。</p>
+      <div id="activity" aria-live="polite"></div>
+    </section>
+
+    <section class="panel repro" aria-labelledby="repro-heading">
+      <header class="panel-head">
+        <div>
+          <h2 id="repro-heading">在终端独立测试</h2>
+          <p class="subtle">在 <code>SkyAO-receiver-demo</code> 目录运行命令。命令会从本机接收器取得临时测试令牌。</p>
+        </div>
+        <button id="copy" type="button" disabled>复制命令</button>
+      </header>
+      <div class="command-tabs" aria-label="发送工具">
+        <button id="curl-choice" type="button" aria-pressed="true">curl · 直接发送</button>
+        <button id="cli-choice" type="button" aria-pressed="false">skyctl · 预检和重试</button>
+      </div>
+      <pre id="command">选择合成测试包以生成对应命令。</pre>
+      <p class="subtle inset" id="command-note"></p>
+    </section>
+  </main>
+</body>
+</html>

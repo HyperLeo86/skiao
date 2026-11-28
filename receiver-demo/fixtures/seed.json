@@ -1,0 +1,56 @@
+{
+  "analysis_run_id": "RUN-TEST-001",
+  "samples": {
+    "S01": "Sample 1",
+    "S02": "Sample 2",
+    "S03": "Sample 3",
+    "S04": "Sample 4",
+    "S05": "Sample 5",
+    "S06": "Sample 6"
+  },
+  "groups": {
+    "A": "Group A",
+    "B": "Group B",
+    "C": "Group C"
+  },
+  "sample_groups": {
+    "S01": "A",
+    "S02": "A",
+    "S03": "B",
+    "S04": "B",
+    "S05": "C",
+    "S06": "C"
+  },
+  "comparisons": {
+    "C_AB": "A vs B",
+    "C_BC": "B vs C"
+  },
+  "comparison_definitions": {
+    "C_AB": {
+      "numerator": "A",
+      "denominator": "B"
+    },
+    "C_BC": {
+      "numerator": "B",
+      "denominator": "C"
+    }
+  },
+  "feature_levels": {
+    "gene": "基因",
+    "isoform": "转录本"
+  },
+  "sections": {
+    "qc": {
+      "title": "质量控制",
+      "order": 10
+    },
+    "expression": {
+      "title": "表达量分析",
+      "order": 20
+    },
+    "differential": {
+      "title": "差异分析",
+      "order": 30
+    }
+  }
+}

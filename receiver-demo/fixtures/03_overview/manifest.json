@@ -1,0 +1,61 @@
+{
+  "schema_version": "0.2",
+  "delivery_id": "DEL-TEST-003",
+  "analysis_run_id": "RUN-TEST-001",
+  "section_key": "expression",
+  "node_key": "overall_expression",
+  "node_title": "整体表达概览",
+  "sort_order": 20,
+  "result_units": [
+    {
+      "selectors": {},
+      "render_groups": [
+        {
+          "render_types": [
+            "heatmap"
+          ],
+          "sources": {
+            "matrix": "matrix.csv",
+            "annotation": "annotation.csv"
+          },
+          "editable": true
+        },
+        {
+          "render_types": [
+            "table"
+          ],
+          "sources": {
+            "data": "matrix.csv"
+          },
+          "editable": false
+        },
+        {
+          "render_types": [
+            "pca"
+          ],
+          "sources": {
+            "data": "pca.csv"
+          },
+          "editable": true
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "file_name": "matrix.csv",
+      "size_bytes": 507,
+      "sha256": "12c7ed8f424e18ea2080cc1fb698c8cd59969b0f19489833f0ba4e187d9171cb"
+    },
+    {
+      "file_name": "annotation.csv",
+      "size_bytes": 52,
+      "sha256": "4f8f1b04e6316b86f1e62f9a6bf4a1ac13f02dcfb07117abd665d24e12fe7cb8"
+    },
+    {
+      "file_name": "pca.csv",
+      "size_bytes": 105,
+      "sha256": "a7a4b196406a3e8548b9fb177e30607a0ce69d1c98556bdc38eef555aedf2215"
+    }
+  ]
+}

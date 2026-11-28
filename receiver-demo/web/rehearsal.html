@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>结果投送演练台 · SkyAO</title>
+  <link rel="stylesheet" href="/web/parameters.css">
+  <link rel="stylesheet" href="/web/rehearsal.css">
+  <script type="module" src="/web/rehearsal.js"></script>
+</head>
+<body>
+<header class="top drill-top">
+  <a class="brand" href="/demo/rehearsal"><span class="brand-mark" aria-hidden="true">S</span><span>SkyAO<small>生信工作台</small></span></a>
+  <nav aria-label="工作区">
+    <a href="/workbench/parameter-editor/">参数编辑器</a><a href="/workbench/node-editor/">节点编辑器</a>
+    <a href="/workbench/flow-editor/">云流程编辑器</a><a href="/demo/rehearsal" aria-current="page">结果投送演练台</a>
+  </nav>
+</header>
+<main class="shell drill-shell">
+  <header class="page-head drill-title">
+    <div><p class="crumb">生信工作台 / 工程演练</p><h1>结果投送演练台</h1>
+      <p>从空项目开始，选择本地文件，核对 Manifest，查看真实接收结果与数据库记录。</p>
+    </div>
+    <button id="new-project" class="btn primary" disabled>＋ 创建演练项目</button>
+  </header>
+  <ol id="steps" class="steps" aria-label="演练步骤">
+    <li><button type="button" data-step="project"><b>1</b><span>创建项目<small>实例化空目录</small></span></button></li>
+    <li><button type="button" data-step="materials"><b>2</b><span>下载材料<small>解压 CSV 和 PNG</small></span></button></li>
+    <li><button type="button" data-step="prepare"><b>3</b><span>准备投送<small>绑定文件与结果项</small></span></button></li>
+    <li><button type="button" data-step="inspect"><b>4</b><span>查看结果与数据库<small>核对回执和版本</small></span></button></li>
+  </ol>
+  <p id="global-error" class="validation has-issues" hidden></p>
+  <div class="drill-grid">
+    <aside class="panel drill-library" id="project-region">
+      <div class="drill-panel-head"><h2>项目目录</h2><span id="position-count" class="tag system" hidden></span></div>
+      <div class="drill-body">
+        <label class="field"><span>演练项目</span><select id="project-select"></select></label>
+        <p id="project-id" class="muted"></p>
+      </div>
+      <div id="directory" class="directory"></div>
+    </aside>
+    <section class="panel drill-prepare" id="prepare-region">
+      <div class="drill-panel-head"><h2>准备投送</h2><span class="tag system">V0.3</span></div>
+      <div class="drill-body prepare-stack">
+        <section class="download-box" id="materials-region">
+          <h3>测试材料</h3><p class="muted">下载后解压，按说明选择原始 CSV 或 PNG。A、B 用于演练结果更新。</p>
+          <div class="drill-actions"><a id="download-all" class="btn">下载全部材料</a><a id="download-node" class="btn">下载当前节点材料</a></div>
+        </section>
+        <label class="field"><span>目标节点</span><select id="node-select"></select></label>
+        <div id="scope-controls" class="field-row"></div>
+        <section class="file-block">
+          <div class="drill-panel-head inline"><h3>文件与结果项</h3><button id="pick-files" class="btn" type="button">＋ 选择本地文件</button>
+            <input id="local-files" type="file" accept=".csv,.png,text/csv,image/png" multiple hidden aria-label="选择本地文件">
+          </div>
+          <div id="bindings"></div>
+        </section>
+        <div id="send-error" class="validation has-issues" role="alert" hidden></div>
+        <div class="drill-actions send-actions"><button id="send" class="btn primary" type="button">检查并投送</button>
+          <span id="send-state" class="muted" role="status"></span></div>
+      </div>
+    </section>
+    <aside class="panel drill-preview" id="inspect-region">
+      <div class="drill-panel-head"><h2>核对与查看</h2></div>
+      <div class="drill-body">
+        <div class="segments drill-tabs" aria-label="核对视图">
+          <button type="button" data-tab="manifest" aria-pressed="true">Manifest</button>
+          <button type="button" data-tab="receipt" aria-pressed="false">接收回执</button>
+          <button type="button" data-tab="result" aria-pressed="false">结果预览</button>
+        </div>
+        <div id="inspection"></div>
+      </div>
+    </aside>
+  </div>
+  <details class="panel database-panel" id="database-region">
+    <summary class="drill-panel-head"><span>数据库记录 <small id="database-count" class="muted"></small></span><span class="tag system">SQLite · 只读</span></summary>
+    <div class="drill-body"><p id="db-message" class="muted"></p><div id="database"></div></div>
+  </details>
+</main>
+<dialog id="create-dialog">
+  <form id="create-form">
+    <div class="dialog-header"><div><h2>创建演练项目</h2><p>创建后可立即查看完整目录与空结果位置。</p></div></div>
+    <div class="dialog-fields">
+      <label class="field"><span>项目名称</span><input id="project-name" maxlength="160" placeholder="投送演练项目"></label>
+      <label class="field"><span>流程模板</span><select id="template-select"></select></label>
+      <div id="import-template" hidden>
+        <label class="field"><span>已确认流程与节点的定义 JSON</span><input id="template-files" type="file" multiple accept=".json,application/json"></label>
+        <p class="muted">选择一份流程定义和它引用的全部节点定义。节点编号和版本须能对应。</p>
+      </div>
+      <p id="create-error" class="validation has-issues" role="alert" hidden></p>
+    </div>
+    <div class="dialog-actions"><button id="cancel-create" class="btn" type="button">返回</button><button id="create-submit" class="btn primary">创建空项目</button></div>
+  </form>
+</dialog>
+</body>
+</html>

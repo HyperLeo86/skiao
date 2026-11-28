@@ -1,0 +1,32 @@
+{
+  "schema_version": "0.2",
+  "delivery_id": "DEL-TEST-094",
+  "analysis_run_id": "RUN-TEST-001",
+  "section_key": "expression",
+  "node_key": "bad_renderer",
+  "node_title": "错误渲染器",
+  "sort_order": 92,
+  "result_units": [
+    {
+      "selectors": {},
+      "render_groups": [
+        {
+          "render_types": [
+            "unknown_renderer"
+          ],
+          "sources": {
+            "data": "S01.csv"
+          },
+          "editable": true
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "file_name": "S01.csv",
+      "size_bytes": 736,
+      "sha256": "a39c361302e17847f1cb17c1406b1f0d9f20d343f277e1ade18546e853e8dd8f"
+    }
+  ]
+}

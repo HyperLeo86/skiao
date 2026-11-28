@@ -1,0 +1,79 @@
+{
+  "schema_version": "0.2",
+  "delivery_id": "DEL-TEST-005",
+  "analysis_run_id": "RUN-TEST-001",
+  "section_key": "differential",
+  "node_key": "multi_level_diff",
+  "node_title": "多层级差异分析",
+  "sort_order": 20,
+  "result_units": [
+    {
+      "selectors": {
+        "comparison": "C_AB",
+        "feature_level": "gene"
+      },
+      "render_groups": [
+        {
+          "render_types": [
+            "volcano"
+          ],
+          "sources": {
+            "data": "C_AB_gene.csv"
+          },
+          "editable": true
+        }
+      ]
+    },
+    {
+      "selectors": {
+        "comparison": "C_AB",
+        "feature_level": "isoform"
+      },
+      "render_groups": [
+        {
+          "render_types": [
+            "volcano"
+          ],
+          "sources": {
+            "data": "C_AB_isoform.csv"
+          },
+          "editable": true
+        }
+      ]
+    },
+    {
+      "selectors": {
+        "comparison": "C_BC",
+        "feature_level": "gene"
+      },
+      "render_groups": [
+        {
+          "render_types": [
+            "volcano"
+          ],
+          "sources": {
+            "data": "C_BC_gene.csv"
+          },
+          "editable": true
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "file_name": "C_AB_gene.csv",
+      "size_bytes": 1691,
+      "sha256": "dc2e1eba4279c815e397b2d49806d24dfca889f5b9440a10c1e1ed20363e678a"
+    },
+    {
+      "file_name": "C_AB_isoform.csv",
+      "size_bytes": 1683,
+      "sha256": "0181327742d2d08e87fca863969e0e8aa3f979c9a0b02d5ad336d5ec9bd1f434"
+    },
+    {
+      "file_name": "C_BC_gene.csv",
+      "size_bytes": 1683,
+      "sha256": "792236b4b108993af95b08a0a9ba5b7455cfbf044bec79fd9eea9549294a6ee4"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "schema_version": "0.2",
+  "delivery_id": "DEL-TEST-001",
+  "analysis_run_id": "RUN-TEST-001",
+  "section_key": "expression",
+  "node_key": "expression_distribution",
+  "node_title": "样本表达量分布",
+  "sort_order": 10,
+  "result_units": [
+    {
+      "selectors": {
+        "sample": "S01"
+      },
+      "render_groups": [
+        {
+          "render_types": [
+            "boxplot",
+            "violin",
+            "density",
+            "table"
+          ],
+          "sources": {
+            "data": "S01.csv"
+          },
+          "editable": true
+        }
+      ]
+    },
+    {
+      "selectors": {
+        "sample": "S02"
+      },
+      "render_groups": [
+        {
+          "render_types": [
+            "boxplot",
+            "violin",
+            "density",
+            "table"
+          ],
+          "sources": {
+            "data": "S02.csv"
+          },
+          "editable": true
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "file_name": "S01.csv",
+      "size_bytes": 736,
+      "sha256": "a39c361302e17847f1cb17c1406b1f0d9f20d343f277e1ade18546e853e8dd8f"
+    },
+    {
+      "file_name": "S02.csv",
+      "size_bytes": 744,
+      "sha256": "17da87d410335aa3eca01055256c18998d31df4c990bd99d781e5da2c32553f1"
+    }
+  ]
+}

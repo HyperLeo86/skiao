@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>斯凯奥 · 文件投送追踪</title>
+  <link rel="stylesheet" href="/web/style.css">
+  <link rel="stylesheet" href="/web/console.css">
+  <link rel="stylesheet" href="/web/transfer.css">
+  <script type="module" src="/web/transfer.js"></script>
+</head>
+<body>
+  <header class="console-top">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">S</span> 斯凯奥 <span class="brand-en">SkyAO</span></div>
+    <nav aria-label="工作区">
+      <a aria-current="page" href="/demo/transfer">文件投送追踪</a>
+      <a href="/demo">接收测试</a>
+      <a href="/demo/parameters">参数编辑器</a>
+      <a id="result-link" hidden>查看分析结果</a>
+      <a href="/demo/rehearsal">结果投送演练台</a>
+    </nav>
+  </header>
+  <main class="console">
+    <div class="intro">
+      <div>
+        <h1>一份文件，从哪来到哪去</h1>
+        <p>用编辑器修改本机的 <code>reading.csv</code>，保存后重新读取，再看接收端存下了什么。</p>
+      </div>
+      <div class="trace-controls">
+        <button id="reload" type="button" disabled>重新读取磁盘</button>
+        <button id="send" class="primary" type="button" disabled>发送当前文件</button>
+      </div>
+    </div>
+    <p class="trace-state" id="progress" role="status">正在读取本机磁盘…</p>
+    <div class="trace-grid">
+      <section class="panel" aria-labelledby="source-heading">
+        <header class="panel-head">
+          <h2 id="source-heading">本机源文件</h2>
+          <button id="copy-path" type="button" disabled>复制路径</button>
+        </header>
+        <div class="trace-content">
+          <code id="source-path" class="trace-path"></code>
+          <p class="subtle" id="source-info"></p>
+          <pre id="source-preview" aria-label="源文件内容"></pre>
+          <details>
+            <summary id="manifest-label">查看待发送清单</summary>
+            <pre id="manifest"></pre>
+          </details>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="transport-heading">
+        <header class="panel-head"><h2 id="transport-heading">怎么发送</h2></header>
+        <div class="trace-content">
+          <p>点击发送后，浏览器读取本机文件，打包成两个字段，通过 HTTP 上传。</p>
+          <code id="post-url" class="trace-path"></code>
+          <dl class="trace-facts">
+            <dt><code>manifest</code></dt><dd>文件名、任务编号、长度和 SHA-256。</dd>
+            <dt><code>files</code></dt><dd><code>reading.csv</code> 的原始字节。</dd>
+          </dl>
+          <p class="subtle" id="last-send">本页还没有发送请求。</p>
+          <details id="reply-wrap" hidden>
+            <summary>查看实际 HTTP 回执</summary>
+            <pre id="reply"></pre>
+          </details>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="received-heading">
+        <header class="panel-head">
+          <h2 id="received-heading">本机接收器落盘</h2>
+          <button id="download" type="button" disabled>下载接收副本</button>
+        </header>
+        <div class="trace-content">
+          <p class="subtle" id="destination-empty">等待第一次发送。</p>
+          <code id="destination-path" class="trace-path" hidden></code>
+          <p class="subtle" id="destination-info" hidden></p>
+          <pre id="destination-preview" aria-label="接收文件内容" hidden></pre>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel activity" aria-labelledby="cloud-heading">
+      <header class="panel-head">
+        <h2 id="cloud-heading">GitHub 归档</h2>
+        <a id="cloud-link" hidden rel="noreferrer">打开 GitHub 上的文件</a>
+      </header>
+      <p class="subtle inset" id="cloud-state">等待私有 GitHub 仓库配置。</p>
+      <div id="cloud-evidence" class="inset" hidden>
+        <code id="cloud-path" class="trace-path"></code>
+        <p id="cloud-method" class="subtle"></p>
+      </div>
+      <details class="inset">
+        <summary>通过终端归档到你的私有仓库</summary>
+        <p class="subtle">先发送当前文件，并确保 GitHub CLI 可以向目标仓库写入。在 Demo 目录运行：</p>
+        <pre>.venv/bin/python -m skyao.publish_github --repo owner/name</pre>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

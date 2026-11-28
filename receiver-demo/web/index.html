@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/web/style.css">
+  <script defer src="/web/plotly.min.js"></script>
+  <script type="module" src="/web/app.js"></script>
+  <title>斯凯奥 · 结果接收器</title>
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">S</span> 斯凯奥 <span class="brand-en">SkyAO</span></div>
+    <a id="console-link" class="console-link" href="/demo" hidden>返回接收器测试台</a>
+    <form id="access" autocomplete="off">
+      <label for="token">访问令牌</label>
+      <input id="token" type="password" required spellcheck="false" autocomplete="off">
+      <button class="primary" type="submit">打开结果</button>
+      <button id="refresh" type="button" hidden>刷新结果</button>
+    </form>
+  </header>
+  <div class="layout">
+    <aside>
+      <h2>分析目录</h2>
+      <nav id="directory" aria-label="分析目录"></nav>
+    </aside>
+    <main>
+      <header class="page-head">
+        <p id="run" class="run"></p>
+        <h1 id="title">结果接收器</h1>
+      </header>
+      <p id="notice" role="status">输入访问令牌查看已接收结果。</p>
+      <section id="result" aria-label="当前结果" hidden>
+        <div class="metadata">
+          <div id="selectors"></div>
+          <span id="revision"></span>
+        </div>
+        <div class="toolbar">
+          <fieldset id="types"><legend>图表</legend></fieldset>
+          <label class="mode">展示方式
+            <select id="mode">
+              <option value="single">单图切换</option>
+              <option value="multiple">同时展示</option>
+            </select>
+          </label>
+        </div>
+        <div id="tabs" role="tablist" aria-label="图表切换"></div>
+        <div id="views"></div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

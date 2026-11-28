@@ -1,0 +1,59 @@
+{
+  "schema_version": "0.2",
+  "delivery_id": "DEL-TEST-002",
+  "analysis_run_id": "RUN-TEST-001",
+  "section_key": "differential",
+  "node_key": "gene_expression",
+  "node_title": "基因差异表达分析",
+  "sort_order": 10,
+  "result_units": [
+    {
+      "selectors": {
+        "comparison": "C_AB"
+      },
+      "render_groups": [
+        {
+          "render_types": [
+            "volcano",
+            "ma_plot",
+            "table"
+          ],
+          "sources": {
+            "data": "C_AB.csv"
+          },
+          "editable": true
+        }
+      ]
+    },
+    {
+      "selectors": {
+        "comparison": "C_BC"
+      },
+      "render_groups": [
+        {
+          "render_types": [
+            "volcano",
+            "ma_plot",
+            "table"
+          ],
+          "sources": {
+            "data": "C_BC.csv"
+          },
+          "editable": true
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "file_name": "C_AB.csv",
+      "size_bytes": 1684,
+      "sha256": "ae6f2427da66f406dcbd688c592d1b87612a3c0dff033de2e91f1968c07a5c5a"
+    },
+    {
+      "file_name": "C_BC.csv",
+      "size_bytes": 1688,
+      "sha256": "8815a08c267f7d1ce1ff977b00c72c6f24b2f37bb8deea96b68f4fb94f8fc7a3"
+    }
+  ]
+}

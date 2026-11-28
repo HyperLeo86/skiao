@@ -1,0 +1,6 @@
+.venv/
+node_modules/
+__pycache__/
+.sky-client/
+.sky-server/
+.sky-demo/

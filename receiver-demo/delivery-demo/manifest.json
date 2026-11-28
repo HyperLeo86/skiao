@@ -1,0 +1,17 @@
+{
+  "schema_version": "0.2",
+  "analysis_run_id": "RUN-TEST-001",
+  "section_key": "expression",
+  "node_key": "editable-transfer",
+  "node_title": "可编辑文件投送",
+  "sort_order": 90,
+  "result_units": [
+    {
+      "selectors": {},
+      "render_groups": [
+        {"render_types": ["table"], "sources": {"data": "reading.csv"}, "editable": false}
+      ]
+    }
+  ],
+  "artifacts": [{"file_name": "reading.csv"}]
+}
