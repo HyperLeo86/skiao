@@ -15,7 +15,7 @@ export function parameterForm(card, preview, {required = false, linked = false, 
     }).join("")}</div>`;
   } else if (card.type === "choice") {
     const options = c.mode === "boolean" ? [["true", "是"], ["false", "否"]] :
-      c.options.filter(item => item.code).map(item => [item.code, item.name || item.code]);
+      c.options.map((item, index) => [item.code, item.name || `选项 ${index + 1}`]);
     control = c.mode === "multiple" ? checklist(options, preview.value, "preview-choice", "添加选项后可试填。") :
       mockSelect(options, preview.value, "试填固定选项");
   } else if (card.type === "project") {

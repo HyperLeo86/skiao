@@ -4,7 +4,7 @@ import {updateParameterTrial} from "../parameter-editor/parameter-form.js";
 import {parameterLibrary, parameterStorageKey, saveVersion} from "../parameter-editor/workbench-storage.js";
 import {scriptLabel, scriptStatus, prepareNodeTrials, nodeTrialForms, nodeResultsPreview} from "./node-preview.js";
 import {
-  resultTypes, modes, scripts, nodeLibrary, identity, newNode, addResult, makeReference,
+  resultTypes, modes, scripts, cloudScriptLibraries, cloudScriptName, nodeLibrary, identity, newNode, addResult, makeReference,
   resolve, definition, definitionIssues, trialSubmission, trialIssues,
 } from "./node-model.js";
 
@@ -103,14 +103,23 @@ function parameterOptions() {
   }).join("");
 }
 
+function cloudScriptPicker(ref) {
+  const groups = cloudScriptLibraries.map(library =>
+    `<optgroup label="${esc(library.name)}">${opt(library.scripts, ref)}</optgroup>`).join("");
+  const legacy = ref && !cloudScriptName(ref) ? opt([[ref, `此前登记 · ${ref}`]], ref) : "";
+  return labeled("云端脚本", `<select data-bind="reanalysis.handler_ref">
+    ${opt([["", "从脚本库选择"]], ref)}${legacy}${groups}</select>`, true);
+}
+
 function analysisSection() {
   const analysis = state.node.reanalysis;
   const radios = Object.entries(modes).map(([mode, label]) => `<label class="checkbox">
     <input type="radio" name="analysis-mode" data-bind="reanalysis.mode" value="${mode}"${checked(mode === analysis.mode)}>${label}</label>`).join("");
   return `<div class="checklist" role="group" aria-label="重分析执行方式">${radios}</div>
     ${analysis.mode === "none" ? "" : `<div id="analyze-fields">
-      ${labeled("执行入口 ID／代码", input("reanalysis.handler_ref", analysis.handler_ref, {placeholder: analysis.mode === "cloud" ? "云端脚本代码" : "本地任务入口代码", code: true}), true)}
-      <p class="hint"><span class="integration">未接入</span> 试填只生成提交示例。</p>
+      ${analysis.mode === "cloud" ? `${cloudScriptPicker(analysis.handler_ref)}
+        <p class="hint"><span class="integration">未接入</span> 预设脚本供配置选用，试填生成提交示例。</p>` :
+        '<p class="hint">逐条添加内置重分析所需参数。 <span class="integration">执行服务未接入</span></p>'}
       <div class="node-list">${referenceRows()}</div>
       <div class="node-editor-line">${labeled("参数清单", `<select id="parameter-picker" title="仅能选用已确认的参数版本">${parameterOptions()}</select>`)}
         ${btn("add-param", "添加参数")}</div>
@@ -262,7 +271,9 @@ function edit(target) {
   const path = target.dataset.bind.split(".");
   const property = path.pop();
   const record = path.reduce((value, field) => value[field], state.node);
+  const previous = record[property];
   record[property] = target.type === "checkbox" ? target.checked : target.value;
+  if (target.dataset.bind === "reanalysis.mode" && previous !== target.value) record.handler_ref = "";
   header();
   if (target.dataset.bind === "reanalysis.mode" || property === "visible") {
     const id = target.dataset.bind;
@@ -377,7 +388,14 @@ function markdown() {
   const analysis = item.reanalysis;
   lines.push("", "## 重分析配置", "", `- 执行方式 ${modes[analysis.mode]}`);
   if (analysis.mode !== "none") {
-    lines.push(`- 执行入口 \`${analysis.handler_ref || "待配置"}\`（未接入）`, "", "### 参数清单", "");
+    if (analysis.mode === "cloud") {
+      const ref = analysis.handler_ref;
+      lines.push(`- 云端脚本 ${cloudScriptName(ref) || (ref ? "此前登记" : "待选择")}${ref ? ` · \`${ref}\`` : ""}（未接入）`);
+    } else {
+      lines.push("- 内置重分析 · 按清单下发参数（执行服务未接入）");
+      if (analysis.handler_ref) lines.push(`- 历史入口 \`${analysis.handler_ref}\``);
+    }
+    lines.push("", "### 参数清单", "");
     analysis.parameters.forEach(ref => {
       const card = resolve(ref, state.cards);
       lines.push(`${ref.order}. ${card?.name || ref.parameter_code} \`${ref.parameter_code}\` v${ref.parameter_version} · ${ref.required ? "必填" : "选填"} · ID \`${ref.parameter_id}\``);

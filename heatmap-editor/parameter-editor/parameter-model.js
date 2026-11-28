@@ -10,6 +10,40 @@ export const field = (name = "", code = "", minimum = null) => ({
   name, code, number_type: "integer", minimum, maximum: null, default: null,
 });
 export const option = () => ({name: "", code: ""});
+function newCode(prefix, reserved) {
+  let code;
+  do {
+    code = prefix + "_" + crypto.randomUUID().replaceAll("-", "").slice(0, 12);
+  } while (reserved.has(code));
+  reserved.add(code);
+  return code;
+}
+
+export function fillGeneratedCodes(card, cards) {
+  const valid = code => typeof code === "string" && codePattern.test(code);
+  if (!valid(card.code)) {
+    card.code = newCode("param", new Set(cards.map(item => item.code)));
+  }
+  const config = card.config;
+  const choice = card.type === "choice";
+  const rows = choice ? config.options : card.type === "number" && config.mode === "multiple" ? config.fields : [];
+  const reserved = new Set(rows.map(row => row.code));
+  const used = new Set();
+  const replacements = new Map();
+  for (const row of rows) {
+    const previous = row.code;
+    if (!valid(previous) || used.has(previous)) {
+      row.code = newCode(choice ? "option" : "value", reserved);
+      if (previous && !valid(previous) && !replacements.has(previous)) replacements.set(previous, row.code);
+    }
+    used.add(row.code);
+  }
+  if (choice && replacements.size) {
+    if (Array.isArray(config.default)) config.default = config.default.map(code => replacements.get(code) ?? code);
+    else config.default = replacements.get(config.default) ?? config.default;
+  }
+}
+
 export const preset = config => config.mode === "single" ? "single" : config.check === "min_lte_max" ? "range" : "multiple";
 export const availableSources = object => ["project", ...({
   group: ["scheme"], comparison: ["scheme", "task"], gene_set: ["task"],

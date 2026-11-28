@@ -269,3 +269,24 @@ dialog fieldset label { display: flex; align-items: flex-start; gap: 8px; font-s
   .top { gap: 9px; padding-inline: 8px; }
   .top nav { gap: 9px; }
 }
+
+.parameter-page .shell { padding-block: 16px 22px; }
+.parameter-page .page-head { margin-bottom: 12px; }
+.parameter-page .crumb { margin-bottom: 5px; }
+.parameter-page h1 { font-size: clamp(25px, 2.6vw, 32px); }
+.parameter-page .page-head p { margin-top: 5px; }
+.parameter-page .workbench-head { padding-block: 9px; min-height: 60px; margin-bottom: 9px; }
+.parameter-page .panel-head { padding-block: 8px; }
+.parameter-page .definition-block { padding-block: 8px; }
+.parameter-page .block-title { margin-bottom: 6px; }
+.parameter-page .table-scroller { margin-top: 6px; }
+.parameter-page .config-table td { padding-top: 3px; }
+.parameter-page .config-table th { padding-block: 5px; }
+.parameter-page .config-table th:last-child:empty { width: 30px; }
+.parameter-page .library { padding-top: 11px; }
+.parameter-page .library-item { min-height: 44px; padding-block: 4px; }
+.parameter-page .filters { margin-block: 9px; }
+.parameter-page .preview-body { padding-block: 9px; }
+@media (min-width: 1140px) {
+  .parameter-page .workspace-grid { grid-template-columns: 230px minmax(0, 1fr); gap: 12px; }
+}

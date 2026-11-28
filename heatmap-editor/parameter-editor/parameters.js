@@ -1,7 +1,7 @@
 import {
   types, statuses, objects, sources, strategies, dependencyTypes, field, option, preset, numberConfig,
   newConfig, availableSources, availableStrategies, dependencies, definitionIssues, previewIssues,
-  initialPreview, submission, definition,
+  initialPreview, submission, definition, fillGeneratedCodes,
 } from "./parameter-model.js";
 import {icon, esc, $, btn, statusBadge, checked, pairs, opt, input, select, labeled, block, checklist, colorJson, download, downloadCsv, toggleValue} from "./workbench-ui.js";
 import {parameterForm, updateParameterTrial} from "./parameter-form.js";
@@ -41,19 +41,18 @@ function heading() {
   $("selected-name").textContent = card.name.trim() || "未命名参数";
   $("selected-icon").innerHTML = icon(card.type, 22);
   $("selected-status").innerHTML = statusBadge(card.status);
-  $("selected-meta").innerHTML = `<code>${esc(card.code || "参数代码待填写")}</code><span class="meta-divider"></span><span>v${card.version}</span>`;
+  $("selected-meta").innerHTML = `<code>${esc(card.code || "代码未生成")}</code><span class="meta-divider"></span><span>v${card.version}</span>`;
   $("head-actions").innerHTML = card.id ? btn("markdown", "Markdown", "", "download") : "";
 }
 
 function numberEditor(c) {
   const arrangement = preset(c);
   const multiple = c.mode === "multiple";
-  const headers = `${multiple ? "<th>子项名称</th><th>子项代码</th>" : ""}<th>数值类型</th><th>最小允许值</th><th>最大允许值</th>${arrangement === "multiple" ? "<th></th>" : ""}`;
+  const headers = `${multiple ? "<th>子项名称</th>" : ""}<th>数值类型</th><th>最小允许值</th><th>最大允许值</th>${arrangement === "multiple" ? "<th></th>" : ""}`;
   const numbers = c.fields.map((item, index) => {
     const base = `config.fields.${index}`;
     const name = item.name || `数值 ${index + 1}`;
-    return `<tr>${multiple ? `<td>${input(base + ".name", item.name, {label: `子项 ${index + 1} 名称`, placeholder: "子项名称"})}</td>
-      <td>${input(base + ".code", item.code, {label: `子项 ${index + 1} 代码`, placeholder: "field_code", code: true})}</td>` : ""}
+    return `<tr>${multiple ? `<td>${input(base + ".name", item.name, {label: `子项 ${index + 1} 名称`, placeholder: "子项名称"})}</td>` : ""}
       <td>${select(base + ".number_type", item.number_type, [["integer", "整数"], ["decimal", "小数"]], `${name} 数值类型`)}</td>
       ${["minimum", "maximum"].map((bound, position) => `<td>${input(base + "." + bound, item[bound], {type: "number", label: `${name} ${position ? "最大" : "最小"}允许值`, placeholder: "不限制"})}</td>`).join("")}
       ${arrangement === "multiple" ? `<td><button type="button" class="icon-button" data-action="remove-field" data-index="${index}" aria-label="删除子项 ${index + 1}" ${c.fields.length === 1 ? "disabled" : ""}>${icon("trash", 15)}</button></td>` : ""}</tr>`;
@@ -78,16 +77,15 @@ function numberEditor(c) {
 function choiceEditor(c) {
   const items = c.options.map((item, index) => `<tr>
     <td>${input(`config.options.${index}.name`, item.name, {label: `选项 ${index + 1} 名称`, placeholder: "选项名称"})}</td>
-    <td>${input(`config.options.${index}.code`, item.code, {label: `选项 ${index + 1} 代码`, placeholder: "option_code", code: true})}</td>
     <td><button type="button" class="icon-button" data-action="remove-option" data-index="${index}" aria-label="删除选项 ${index + 1}">${icon("trash", 15)}</button></td>
   </tr>`).join("");
-  const options = c.options.filter(item => item.code).map(item => [item.code, item.name || item.code]);
+  const options = c.options.map((item, index) => [item.code, item.name || `选项 ${index + 1}`]);
   const defaults = c.mode === "multiple" ? checklist(options, c.default, "default-choice", "暂无可设为默认值的选项。") :
     select("config.default", c.default, [["", "不设置默认值"], ...(c.mode === "boolean" ? [["true", "是"], ["false", "否"]] : options)], "默认选项");
   return {
     values: `${labeled("选择方式", select("config.mode", c.mode, [...modeOptions, ["boolean", "是／否（布尔值）"]]))}
       ${c.mode === "boolean" ? '<p class="hint">选择「是」提交 true，选择「否」提交 false。</p>' :
-        `<div class="table-scroller"><table class="config-table"><thead><tr><th>选项名称</th><th>选项代码</th><th></th></tr></thead>
+        `<div class="table-scroller"><table class="config-table"><thead><tr><th>选项名称</th><th></th></tr></thead>
           <tbody>${items}</tbody></table></div>${btn("add-option", "添加选项", "add", "plus")}`}`,
     defaults,
   };
@@ -124,8 +122,7 @@ function renderEditor() {
     card.type === "choice" ? choiceEditor(card.config) : card.type === "project" ? projectEditor(card) : textEditor(card.config);
   $("definition").innerHTML = `<fieldset class="editor-fields" ${locked() ? "disabled" : ""}>
     ${block("基本信息", `<div class="field-row">${labeled("参数名称", input("name", card.name, {placeholder: "例如 基因数范围"}), true)}
-      ${labeled("参数代码", input("code", card.code, {placeholder: "例如 gene_count_range", code: true}), true)}</div>
-      ${labeled("填写类型", select("type", card.type, pairs(types)), true)}`)}
+      ${labeled("填写类型", select("type", card.type, pairs(types)), true)}</div>`)}
     ${block("取值配置", values)}
     ${block("默认设置", defaults, "选填")}
     ${block("参数说明", `<textarea data-bind="description" aria-label="参数说明" rows="2" placeholder="填写用途、单位或注意事项">${esc(card.description)}</textarea>`, "选填")}
@@ -182,6 +179,7 @@ function renderCard() {
 function choose(card) {
   state.saved = card.id ? card : null;
   state.card = structuredClone(card);
+  if (card.status === "draft") fillGeneratedCodes(state.card, state.cards);
   state.preview = initialPreview(state.card);
   setTab("payload", false);
   renderCard();
@@ -214,7 +212,6 @@ function edit(input, structural) {
   const parts = path.split(".");
   const property = parts.pop();
   const target = parts.reduce((value, part) => value[part], card);
-  const previous = target[property];
   let value = input.type === "number" ? (Number.isFinite(input.valueAsNumber) ? input.valueAsNumber : null) :
     input.type === "checkbox" ? input.checked : input.value;
   let c = card.config;
@@ -241,19 +238,8 @@ function edit(input, structural) {
     if (!availableStrategies(c).includes(c.default)) c.default = "none";
     if (c.source === "project" || path === "config.source") c.dependency = "";
   }
-  if (path.startsWith("config.options.") && property === "code") {
-    if (c.default === previous) c.default = value || null;
-    else if (Array.isArray(c.default) && c.default.includes(previous)) {
-      c.default = Array.from(new Set(c.default.flatMap(code => code === previous ? (value ? [value] : []) : [code])));
-    }
-    const current = state.preview.value;
-    if (current === previous) state.preview.value = value || null;
-    else if (Array.isArray(current) && current.includes(previous)) {
-      state.preview.value = Array.from(new Set(current.flatMap(code => code === previous ? (value ? [value] : []) : [code])));
-    }
-  }
-
   if (structural) {
+    fillGeneratedCodes(card, state.cards);
     state.preview = initialPreview(card);
     renderEditor();
   } else {
@@ -327,6 +313,7 @@ function modifyRows(button) {
     if (c.default === item.code) c.default = null;
     if (Array.isArray(c.default)) c.default = c.default.filter(code => code !== item.code);
   }
+  fillGeneratedCodes(card, state.cards);
   state.preview = initialPreview(card);
   renderEditor();
   mockForm();

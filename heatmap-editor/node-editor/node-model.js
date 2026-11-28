@@ -2,7 +2,14 @@ import {dependencies, definition as parameterDefinition, previewIssues, submissi
 import {localCollection, versionKey} from "../parameter-editor/workbench-storage.js";
 
 export const resultTypes = {table: "表格", image: "原生图片", render: "渲染图片"};
-export const modes = {none: "不支持", cloud: "云端执行", local: "下发本地执行"};
+export const modes = {none: "不支持", cloud: "云端执行", local: "本地参数下发"};
+export const cloudScriptLibraries = [
+  {name: "图形渲染脚本库", scripts: [["render.heatmap", "热图渲染"], ["render.distribution", "分布图渲染"], ["render.pca", "PCA 图渲染"]]},
+  {name: "重新计算脚本库", scripts: [["recompute.expression_matrix", "表达矩阵重算"], ["recompute.differential_results", "差异结果重算"]]},
+];
+
+const cloudScriptNames = new Map(cloudScriptLibraries.flatMap(library => library.scripts));
+export const cloudScriptName = ref => cloudScriptNames.get(ref);
 export const scripts = Object.freeze({heatmap: "热图"});
 const prefixes = {table: "T", image: "P", render: "G"};
 const refPattern = /^[A-Za-z0-9][A-Za-z0-9_.:/-]*$/;
@@ -85,7 +92,7 @@ export function definitionIssues(node, cards) {
 
   const {reanalysis} = node;
   if (reanalysis.mode === "none") return issues;
-  if (!refPattern.test(reanalysis.handler_ref.trim())) issues.push("请填写有效的重分析入口 ID／代码。");
+  if (reanalysis.mode === "cloud" && !refPattern.test(reanalysis.handler_ref.trim())) issues.push("请从预设脚本库选择云端脚本。");
   const codes = new Set();
   const pinned = reanalysis.parameters.map(ref => resolve(ref, cards)).filter(Boolean);
   reanalysis.parameters.forEach(ref => {

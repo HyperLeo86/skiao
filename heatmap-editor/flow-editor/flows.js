@@ -4,7 +4,7 @@ import {
   renderVersionList, renderVersionWorkflow,
 } from "../parameter-editor/workbench-ui.js";
 import {parameterLibrary, parameterStorageKey, saveVersion, versionKey} from "../parameter-editor/workbench-storage.js";
-import {modes, nodeLibrary, nodeStorageKey} from "../node-editor/node-model.js";
+import {modes, cloudScriptName, nodeLibrary, nodeStorageKey} from "../node-editor/node-model.js";
 import {nodeResultsPreview, prepareNodeTrials, nodeTrialForms} from "../node-editor/node-preview.js";
 import {
   flowLibrary, newFlow, newSection, addEntry, pinNode, resolveNode, confirmedVersions,
@@ -111,7 +111,9 @@ function nodePreview() {
     [item.id, `${section.title.trim() || section.id} / ${resolve(item)?.name || item.node_id} · v${item.node_version} · ${item.id}`]));
   const picker = labeled("目录节点", `<select id="preview-entry">${opt(positions, entry.id)}</select>`);
   if (!node) return `${picker}<p class="validation has-issues">无法解析 ${esc(entry.node_id)} v${entry.node_version}。</p>`;
-  const mode = node.reanalysis.mode;
+  const {mode, handler_ref, integration_status} = node.reanalysis;
+  const detail = mode === "cloud" ? cloudScriptName(handler_ref) || handler_ref || "待选择脚本" :
+    mode === "local" ? "内置重分析" : "";
   const forms = mode === "none" ? "" : nodeTrialForms(node, state.parameters, prepareNodeTrials(node, state.parameters));
   return `${picker}
     <div class="mock-form flow-node-head">
@@ -122,7 +124,7 @@ function nodePreview() {
     <h3 class="flow-heading">结果展示 · 示例</h3>
     ${nodeResultsPreview(node, state.chartSelections)}
     <h3 class="flow-heading">重分析参数</h3>
-    <p class="hint">${esc(modes[mode])}${mode === "none" ? "" : ` · ${esc(node.reanalysis.handler_ref)} · ${node.reanalysis.integration_status === "not_connected" ? "未接入" : "配置预览"}`}</p>
+    <p class="hint">${esc(modes[mode])}${detail ? ` · ${esc(detail)} · ${integration_status === "not_connected" ? "未接入" : "配置预览"}` : ""}</p>
     ${mode !== "none" ? (forms ? `<fieldset class="preview-params" aria-label="参数默认值预览" disabled>${forms}</fieldset>` :
       '<p class="hint">该节点版本未登记重分析参数。</p>') : ""}`;
 }
