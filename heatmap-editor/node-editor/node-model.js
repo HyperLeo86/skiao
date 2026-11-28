@@ -1,13 +1,14 @@
 import {dependencies, definition as parameterDefinition, previewIssues, submission} from "../parameter-editor/parameter-model.js";
-import {localCollection} from "../parameter-editor/workbench-storage.js";
+import {localCollection, versionKey} from "../parameter-editor/workbench-storage.js";
 
 export const resultTypes = {table: "表格", image: "原生图片", render: "渲染图片"};
 export const modes = {none: "不支持", cloud: "云端执行", local: "下发本地执行"};
 export const scripts = Object.freeze({heatmap: "热图"});
 const prefixes = {table: "T", image: "P", render: "G"};
 const refPattern = /^[A-Za-z0-9][A-Za-z0-9_.:/-]*$/;
-export const nodeLibrary = localCollection("skyao-static-node-library-v1");
-export const identity = record => `${record.id}@${record.version}`;
+export const nodeStorageKey = "skyao-static-node-library-v1";
+export const nodeLibrary = localCollection(nodeStorageKey);
+export const identity = versionKey;
 
 export function newNode() {
   return {

@@ -34,4 +34,3 @@
 #node-trial { display: grid; gap: 8px; }
 #node-trial + .hint { margin: 0; }
 @media (min-width: 946px) { .preview-column { position: sticky; top: 10px; max-height: calc(100vh - 98px); overflow: auto; scrollbar-width: thin; } }
-@media (max-width: 650px) { .top nav { gap: 12px; } .top nav a { font-size: 12px; } .workspace { display: none; } }

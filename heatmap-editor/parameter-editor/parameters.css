@@ -259,3 +259,13 @@ dialog fieldset label { display: flex; align-items: flex-start; gap: 8px; font-s
   .workflow-icon { display: none; }
   .workbench-head { padding-inline: 10px; }
 }
+
+@media (max-width: 650px) {
+  .top nav { gap: 12px; }
+  .top nav a { font-size: 12px; }
+  .workspace { display: none; }
+}
+@media (max-width: 460px) {
+  .top { gap: 9px; padding-inline: 8px; }
+  .top nav { gap: 9px; }
+}

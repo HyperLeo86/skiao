@@ -1,0 +1,20 @@
+.flow-sections, .flow-entries, .directory-tree, .picker-fields { display: grid; gap: 8px; min-width: 0; }
+.flow-sections > .btn { justify-self: start; }
+.flow-entries { margin: 0; padding: 0; list-style: none; }
+.flow-entry { padding: 7px 8px; border: 1px solid var(--line); border-left: 3px solid var(--accent-light); border-radius: 6px; }
+.flow-entry .node-entry-title { flex: 1; min-width: 0; }
+.flow-entry .node-entry-title strong { flex-basis: 100%; }
+.flow-entry .version-btn { min-height: 22px; padding: 2px 5px; font-size: 10px; }
+.flow-overline { display: grid; gap: 8px; }
+.flow-basic { display: grid; gap: 8px; }
+.flow-heading { margin: 0; font-size: 12px; color: var(--ink); overflow-wrap: anywhere; }
+.flow-dir-section { padding: 9px; border: 1px solid var(--line); border-radius: 8px; background: #fafafe; }
+.flow-dir-section ol { margin: 6px 0 0; padding: 0 0 0 9px; list-style: none; border-left: 1px solid var(--input-line); }
+.flow-dir-node { background: transparent; border: 1px solid transparent; border-radius: 6px; width: 100%; display: flex; text-align: left; gap: 6px; align-items: center; padding: 5px 6px; color: var(--ink); font-size: 12px; }
+.flow-dir-node span { flex: 1; overflow-wrap: anywhere; }
+.flow-dir-node:hover, .flow-dir-node[aria-current="true"] { background: var(--accent-light); color: var(--accent-dark); }
+.flow-dir-node code { white-space: nowrap; font-size: 10px; }
+.flow-node-head .mock-help, .picker-summary { white-space: pre-wrap; overflow-wrap: anywhere; }
+.preview-params { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: 8px; }
+.picker-fields { margin: 12px 0 16px; }
+.picker-summary { min-height: 42px; background: #f4f6fb; color: var(--muted); border-radius: 6px; padding: 8px; font-size: 12px; }

@@ -1,3 +1,4 @@
+import {versionKey} from "./workbench-storage.js";
 import {statuses} from "./parameter-model.js";
 
 const icons = {
@@ -86,3 +87,49 @@ function toggleValue(values, value, on) {
 }
 
 export {icon, esc, $, btn, statusBadge, checked, pairs, opt, input, select, labeled, block, checklist, colorJson, download, downloadCsv, toggleValue};
+
+function moveControls(kind, index, length, label) {
+  return `<button type="button" class="icon-button" data-action="move-${kind}" data-index="${index}" data-delta="-1" aria-label="上移${esc(label)}" ${index ? "" : "disabled"}>↑</button>
+    <button type="button" class="icon-button" data-action="move-${kind}" data-index="${index}" data-delta="1" aria-label="下移${esc(label)}" ${index + 1 < length ? "" : "disabled"}>↓</button>
+    <button type="button" class="icon-button" data-action="remove-${kind}" data-index="${index}" aria-label="删除${esc(label)}">${icon("trash", 15)}</button>`;
+}
+
+function jsonPanel(title) {
+  return `<div class="code-card"><div class="code-head"><span class="code-title">${title}</span>
+    <button id="copy-json" type="button" class="code-copy" aria-label="复制 JSON" title="复制 JSON">${icon("copy", 15)}</button></div><pre><code id="json-preview"></code></pre></div>`;
+}
+
+function renderVersionList({items, total, current, noun}) {
+  $("library-count").textContent = total;
+  $("match-count").textContent = `${items.length} 项`;
+  $("card-list").innerHTML = items.length ? items.map(item =>
+    `<button type="button" class="library-item" data-card="${esc(versionKey(item))}" ${versionKey(item) === versionKey(current) ? 'aria-current="true"' : ""}>
+      <span class="item-icon number">${icon("layers", 15)}</span>
+      <span class="item-label"><strong>${esc(item.name || `未命名${noun}`)}</strong><code>${esc(item.id)} · v${item.version}</code></span>
+      <span class="item-dot ${item.status}" title="${statuses[item.status]}" aria-label="${statuses[item.status]}"></span>
+    </button>`).join("") : `<p class="empty">没有符合条件的已保存${noun}。</p>`;
+}
+
+function renderVersionWorkflow({records, current, saved, dirty, busy, confirmedHelp}) {
+  const hasNext = records.some(item => item.id === current.id && item.version > current.version);
+  const locked = saved?.status === "confirmed";
+  let actions;
+  let help;
+  if (locked) {
+    actions = hasNext ? btn("latest", "查看最新版本", "primary") : btn("version", "另存新版本", "primary", "plus");
+    help = confirmedHelp;
+  } else if (current.status === "pending") {
+    actions = btn("save", "保存修改") + btn("review", "确认入库", "primary", "check");
+    help = dirty ? "请先保存修改，再确认入库。" : "等待人工核对。";
+  } else {
+    actions = btn("save", saved ? "保存修改" : "保存草稿") + btn("pending", "提交待确认", "primary");
+    help = "可以先保存未完成的定义。";
+  }
+  $("workflow").hidden = false;
+  $("workflow-status").innerHTML = `<span class="workflow-icon">${icon(locked ? "check" : "clock")}</span>
+    <span><strong>${dirty ? "有未保存的修改" : statuses[current.status]}</strong><small>${help}</small></span>`;
+  $("workflow-actions").innerHTML = actions;
+  if (busy) $("workflow-actions").querySelectorAll("button").forEach(button => { button.disabled = true; });
+}
+
+export {moveControls, jsonPanel, renderVersionList, renderVersionWorkflow};
